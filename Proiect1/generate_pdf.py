@@ -9,6 +9,8 @@ import random
 import multiprocessing as mp
 from pathlib import Path
 from reportlab.pdfgen import canvas
+
+sys.path.append('../')
 from util import read_image
 
 from lib_google_img.google_images_download import google_images_download

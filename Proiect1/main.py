@@ -1,7 +1,5 @@
 #!/usr/bin/python3
 
-from util import *
-
 import argparse
 import numpy
 import time
@@ -15,6 +13,9 @@ import matplotlib.pyplot as plt
 import os
 import pdb
 import random
+
+sys.path.append('../')
+from util import *
 
 COLLECTION_DIR = "./data/colectie/"
 CIFAR_DIR = "./cifar-10-batches-py/"
