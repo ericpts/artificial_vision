@@ -72,7 +72,7 @@ def add_cifar_pictures(c, tmp_dir, cifar_dir, cifar_labels):
             target = links[at]
             try:
                 print("Generating {} from {} ... ".format(out_file, target))
-                gen_args = [str(target), '--cifar_dir', cifar_dir, '--cifar_label', l, out_file] + extra_args
+                gen_args = [str(target), '--use_cifar', '--cifar_dir', cifar_dir, '--cifar_label', l, out_file] + extra_args
                 subprocess.check_call(['python3', 'main.py'] + gen_args)
                 print("done generating {}".format(out_file))
                 return target
