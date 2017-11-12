@@ -59,7 +59,7 @@ usage: generate_pdf.py [-h] [--target_dir TARGET_DIR]
                        [--cifar_dir CIFAR_DIR]
                        output
 
-Mimic a picture by creating a grid made out of sample pictures.
+Generate project pdf.
 
 positional arguments:
   output                Where to store the generated pdf
@@ -67,9 +67,10 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   --target_dir TARGET_DIR
-                        Where to find the target images
+                        Where to find the target images for the base project
   --collection_dir COLLECTION_DIR
-                        Where to find the collection images
+                        Where to find the collection images for the base
+                        project
   --cifar_dir CIFAR_DIR
                         Where to find the cifar images
 ```

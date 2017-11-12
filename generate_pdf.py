@@ -94,8 +94,8 @@ def add_cifar_pictures(c, tmp_dir, cifar_dir, cifar_labels):
 def main():
     parser = argparse.ArgumentParser(description = 'Generate project pdf.')
     parser.add_argument('output', type=str, help='Where to store the generated pdf')
-    parser.add_argument('--target_dir', default='./data/imaginiTest/', dest='target_dir', type=str, help='Where to find the target images')
-    parser.add_argument('--collection_dir', default='./data/colectie/', dest='collection_dir', type=str, help='Where to find the collection images')
+    parser.add_argument('--target_dir', default='./data/imaginiTest/', dest='target_dir', type=str, help='Where to find the target images for the base project')
+    parser.add_argument('--collection_dir', default='./data/colectie/', dest='collection_dir', type=str, help='Where to find the collection images for the base project')
     parser.add_argument('--cifar_dir', default='./cifar-10-batches-py/', dest='cifar_dir', type=str, help='Where to find the cifar images')
 
     args = parser.parse_args()
