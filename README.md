@@ -2,14 +2,19 @@
 
 ## Tutorial
 Download `Project1.zip` and unzip it, either in the project_root (so that the defaults will work), or in another place, but specifying `--collection_dir` whenever you run a program.
+
 Download the cifar python dataset from https://www.cs.toronto.edu/~kriz/cifar.html and, once again, unzip it in the project root or in your place of choice, specfiying `--cifar_dir`.
 
 
 ## Components
 
+### main
+
 `main.py` is the main program, it generates the collage.
 Usage example:
+
 `python3 main.py data/imaginiTest/ferrari.jpeg out.jpeg --use_cifar --cifar_label  automobile`
+
 `python3 main.py https://wallpapercave.com/wp/Serf6yS.jpg out.jpeg`
 
 ```bash
@@ -39,6 +44,8 @@ optional arguments:
   --cifar_label CIFAR_LABEL
                         What type of cifar pictures to use
 ```
+
+### generate_pdf
 
 `generate_pdf.py` is used to make the project pdf.
 
