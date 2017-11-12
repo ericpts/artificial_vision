@@ -1,3 +1,3 @@
 [submodule "lib_google_img"]
-	path = lib_google_img
+	path = Proiect1/lib_google_img
 	url = https://github.com/rachmadaniHaryono/google-images-download
