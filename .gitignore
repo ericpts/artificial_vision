@@ -1,0 +1,4 @@
+__pycache__
+data/
+*.pdf
+cifar-10-batches-py/
