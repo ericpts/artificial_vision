@@ -21,6 +21,9 @@ HSOBEL_WEIGHTS = np.array([[ 1, 2, 1],
                            [-1,-2,-1]]) / 4.0
 VSOBEL_WEIGHTS = HSOBEL_WEIGHTS.T
 
+def transpose(img):
+    return np.transpose(img, axes=(1,0,2))
+
 def image_energy(img):
     grayscale = skimage.color.rgb2gray(img)
 
@@ -100,10 +103,16 @@ def remove_column(img):
     img = remove_column_path(img, path)
     return img
 
+def remove_line(img):
+    return transpose(remove_column(transpose(img)))
+
 def remove_columns(img, cnt):
     if cnt == 0:
         return img
     return remove_columns(remove_column(img), cnt - 1)
+
+def remove_lines(img, cnt):
+    return transpose(remove_columns(transpose(img), cnt))
 
 def main():
     parser = argparse.ArgumentParser(description = 'Smartly resize imges.')
@@ -119,6 +128,9 @@ def main():
 
     if args.columns:
         fin_img = remove_columns(img, args.columns)
+
+    if args.lines:
+        fin_img = remove_lines(img, args.lines)
 
     misc.imsave(args.output, fin_img)
 
