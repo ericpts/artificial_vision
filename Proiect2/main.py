@@ -147,7 +147,7 @@ def get_column_path_fn(strategy):
         return get_column_path_dynamicprogramming
     elif strategy == 'random':
         return get_column_path_random
-    elif strategy == 'greedyd':
+    elif strategy == 'greedy':
         return get_column_path_greedy
 
     assert(False) # Invalid strategy!
@@ -177,6 +177,17 @@ def remove_lines(img, cnt):
     print('Removing lines by transposing and removing columns')
     return transpose(remove_columns(transpose(img), cnt))
 
+def debug_path(energy, path):
+    (n, m) = energy.shape[0:2]
+    dest = ndarray((n, m), dtype=energy.dtype)
+    for i in range(n):
+        for j in range(m):
+            dest[i][j] = energy[i][j]
+        j = path[i]
+        dest[i][j] = 1
+    plt.imshow(dest)
+    plt.show()
+
 def add_columns(img, cnt):
     paths = []
     original_img = img
@@ -204,7 +215,6 @@ def add_columns(img, cnt):
 
     print('Processing rows in order to add columns...')
     for (row, cols) in tqdm(columns_per_row.items()):
-
         new_row = img[row]
 
         while len(cols) > 0:
@@ -214,7 +224,7 @@ def add_columns(img, cnt):
             # As the paths that come after this one are affected by the removal of `col`, we have to adjust by an offset.
             for (i, c) in enumerate(cols):
                 if c >= col:
-                    cols[i] += 1
+                    cols[i] += 2
 
             neighbours = []
 
@@ -229,7 +239,6 @@ def add_columns(img, cnt):
                 neighbours.append(new_row[col + 1])
             else:
                 neighbours.append(new_row[col])
-
 
             new_col1 = np.reshape(np.mean(neighbours[0:2], axis=(0, )), (1, 3))
             new_col2 = np.reshape(np.mean(neighbours[1:3], axis=(0, )), (1, 3))
