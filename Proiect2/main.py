@@ -74,17 +74,15 @@ def get_column_path_fn(strategy):
             best[0][j] = energy[0][j]
 
         for i in range(1, n):
-            for j in range(m):
-                best_prev = best[i - 1][j]
-                prv = (i - 1, j)
 
-                for nbr in neighbours(i, j):
-                    if best[nbr] < best_prev:
-                        best_prev = best[nbr]
-                        prv = nbr
+            shift_left = np.append(best[i - 1][1:], INF)
+            shift_right = np.append([INF], best[i - 1][:-1])
 
-                best[i][j] = best_prev + energy[i][j]
-                prev[i][j] = prv
+            best[i] = energy[i] + np.minimum(
+                    best[i - 1],
+                    np.minimum(shift_left,
+                        shift_right)
+                    )
 
         starting = 0
         for j in range(m):
@@ -92,7 +90,9 @@ def get_column_path_fn(strategy):
                 starting = j
 
         def get_prev(i, j):
-            return prev[i][j]
+            for nbr in neighbours(i, j):
+                if best[nbr] + energy[i][j] == best[i][j]:
+                    return nbr
 
         path = {}
         def reconstruct_path(i, j):
