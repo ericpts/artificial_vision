@@ -93,7 +93,11 @@ def find_in_kd_tree(target, kd_tree, neighbours_count=1):
     return kd_tree.query(average_color(target), k=neighbours_count)[1]
 
 def normalize_image(img):
-    return misc.imresize(img, 100)
+    ret = misc.imresize(img, 100)
+    if len(ret.shape) == 3 and ret.shape[2] == 4:
+        # Transform from RGBA to RGB.
+        ret = np.delete(ret, axis=2, obj=3)
+    return ret
 
 def split_image(target, pieces_per_horizontal, pieces_per_vertical, random_split=False, random_coef=5):
     (big_w, big_h) = target.shape[0:2]
@@ -218,7 +222,6 @@ def get_column_path_dynamicprogramming(energy):
         return neighbours_with_limits(n, m, i, j)
 
     best = ndarray(energy.shape, dtype=energy.dtype)
-    prev = [[None for _ in range(m)] for _ in range(n)]
 
     for j in range(m):
         best[0][j] = energy[0][j]
