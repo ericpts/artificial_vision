@@ -1,9 +1,6 @@
 # Artificial Vision project 1
 
-## Tutorial
-Download `Project1.zip` and unzip it, either in the project_root (so that the defaults will work), or in another place, but specifying `--collection_dir` whenever you run a program.
-
-Download the cifar python dataset from https://www.cs.toronto.edu/~kriz/cifar.html and, once again, unzip it in the project root or in your place of choice, specfiying `--cifar_dir`.
+Generate jig-saw puzzles - construct big images from a collection of smaller ones.
 
 
 ## Components
