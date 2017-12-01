@@ -84,7 +84,7 @@ def place_with_params(
               where=place_mask)
 
 
-def place_overlap_and_edge_cut(params: Parameters, blocks: List) -> ndarray:
+def place_overlap_and_edge_cut(params: Parameters, sample_img: ndarray) -> ndarray:
     """ Returns the generated picture. """
 
     def start(i: int, j: int):
@@ -122,13 +122,9 @@ def place_overlap_and_edge_cut(params: Parameters, blocks: List) -> ndarray:
     def place(i: int, j: int, piece: int):
         place_with_params(params, blocks, output, i, j, piece)
 
-    output = ndarray(shape=(params.output_height -
-                            (params.blocks_per_height -
-                             1) *
-                            params.overlap_height, params.output_width -
-                            (params.blocks_per_width -
-                             1) *
-                            params.overlap_width, params.nchannels), dtype=np.uint8)
+    blocks = generate_blocks(params.texture_block_count, params.block_height, params.block_width, sample_img)
+
+    output = ndarray(shape=(params.output_height, params.output_width, params.nchannels), dtype=np.uint8)
 
     for i in tqdm(range(params.blocks_per_height)):
         for j in range(params.blocks_per_width):

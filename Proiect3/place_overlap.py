@@ -1,7 +1,7 @@
 from place_utils import *
 import pdb
 
-def place_overlap(params: Parameters, blocks: List) -> ndarray:
+def place_overlap(params: Parameters, sample_img: ndarray) -> ndarray:
     """ Returns the generated picture. """
 
     def start(i: int, j: int):
@@ -89,22 +89,19 @@ def place_overlap(params: Parameters, blocks: List) -> ndarray:
 
         return best
 
-    overlap_height = int(params.block_height * params.overlap)
-    overlap_width = int(params.block_width * params.overlap)
+    blocks = generate_blocks(params.texture_block_count, params.block_height, params.block_width, sample_img)
+
+    overlap_height = params.overlap_height
+    overlap_width = params.overlap_width
 
     output = ndarray(
-        shape=(params.output_height - (params.blocks_per_height - 1) * overlap_height,
-               params.output_width - (params.blocks_per_width - 1) * overlap_width,
-               params.nchannels),
+        shape=(params.output_height, params.output_width, params.nchannels),
         dtype=np.uint8)
 
     place_piece = functools.partial(place_piece_on_output, output)
 
     for i in tqdm(range(params.blocks_per_height)):
         for j in range(params.blocks_per_width):
-            # plt.figure()
-            # plt.imshow(output)
             place_piece(i, j, get_best_fit(i, j))
-            # plt.show()
 
     return output

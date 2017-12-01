@@ -28,6 +28,8 @@ sys.path.append('../')
 from util import *
 from parameters import Parameters
 
+from place_utils import generate_blocks
+
 from place_overlap_and_edge_cut import place_overlap_and_edge_cut
 from place_overlap import place_overlap
 from place_random import place_random
@@ -42,6 +44,14 @@ def check_args(args):
         if args.output_size:
             print('algorithm texture-transfer cannot be given a fixed output size')
             sys.exit(-2)
+
+        if args.transfer_niterations == 1 and args.transfer_coefficient is None:
+            print('--transfer-niterations 1 requires --transfer-coefficient')
+            sys.exit(-4)
+
+        if args.transfer_niterations > 1 and args.transfer_coefficient is not None:
+            print('--transfer-niterations {} adjusts its\' own coefficient, so --transfer-coefficient must not be present'.format(args.transfer_niterations))
+            sys.exit(-5)
 
         args.output_size = read_image(args.transfer_image).shape[0:2]
 
@@ -100,71 +110,43 @@ def main():
         '--transfer-coefficient',
         type=float,
         metavar='alpha',
-        default=0.5,
+        default=None,
         help='Alpha weight will be given to texture fitness and (1 - alpha) to correspondence fitness.')
+    parser.add_argument(
+        '--transfer-niterations',
+        type=int,
+        metavar='niters',
+        default=1,
+        help='How many iterations to perform when transferring texture.')
     args = parser.parse_args()
 
     check_args(args)
 
-    (output_height, output_width) = args.output_size
+    (init_output_height, init_output_width) = args.output_size
     (block_height, block_width) = args.texture_block_size
 
-    height_overlap = int(args.overlap * block_height)
-    width_overlap = int(args.overlap * block_width)
-
-    (blocks_per_height, blocks_per_width) = (
-        int(1 + (output_height - block_height) // (block_height - height_overlap)),
-        int(1 + (output_width - block_width) // (block_width - width_overlap))
-        )
-
-# Sanity checks.
-    assert blocks_per_height > 0
-    assert blocks_per_width > 0
-
-# The last blocks should fit completely within the image.
-    assert (blocks_per_height - 1) * (block_height - height_overlap) + block_height < output_height
-    assert (blocks_per_width - 1) * (block_width - width_overlap) + block_width < output_width
-
-    # pdb.set_trace()
-
-# We should not be able to add any more blocks.
-    assert (blocks_per_height - 0) * (block_height - height_overlap) + block_height >= output_height
-    assert (blocks_per_width - 0) * (block_width - width_overlap) + block_width >= output_width
-
-# Resize the image to fit the blocks completely.
-    # (output_width, output_height) = (block_width * blocks_per_width, block_height * blocks_per_height)
-
     sample_img = read_image(args.sample)
-    (sample_height, sample_width, nchannels) = sample_img.shape
+    nchannels = sample_img.shape[2]
 
     params = Parameters(
-        output_height=output_height,
-        output_width=output_width,
+        texture_block_count=args.texture_block_count,
+        init_output_height=init_output_height,
+        init_output_width=init_output_width,
         block_height=block_height,
         block_width=block_width,
-        blocks_per_height=blocks_per_height,
-        blocks_per_width=blocks_per_width,
         nchannels=nchannels,
         overlap=args.overlap,
-        transfer_coefficient=args.transfer_coefficient)
-
-    blocks = []
-
-    for _ in range(args.texture_block_count):
-        h = random.randint(0, sample_height - block_height)
-        w = random.randint(0, sample_width - block_width)
-
-        block = sample_img[h: h + block_height, w: w + block_width]
-        blocks.append(block)
+        transfer_coefficient=args.transfer_coefficient,
+        transfer_niterations=args.transfer_niterations)
 
     if args.algorithm == 'random':
-        output = place_random(params, blocks)
+        output = place_random(params, sample_img)
     elif args.algorithm == 'overlap':
-        output = place_overlap(params, blocks)
+        output = place_overlap(params, sample_img)
     elif args.algorithm == 'overlap-and-cut':
-        output = place_overlap_and_edge_cut(params, blocks)
+        output = place_overlap_and_edge_cut(params, sample_img)
     elif args.algorithm == 'texture-transfer':
-        output = transfer_texture(params, blocks, read_image(args.transfer_image))
+        output = transfer_texture(params, sample_img, read_image(args.transfer_image))
     else:
         print('Invalid algorithm: {}'.format(args.algorithm))
         sys.exit(-1)

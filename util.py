@@ -147,8 +147,11 @@ HSOBEL_WEIGHTS = np.array([[1, 2, 1],
                            [-1, -2, -1]]) / 4.0
 VSOBEL_WEIGHTS = HSOBEL_WEIGHTS.T
 
+def to_grayscale(img):
+    return skimage.color.rgb2gray(img)
+
 def image_energy(img):
-    grayscale = skimage.color.rgb2gray(img)
+    grayscale = to_grayscale(img)
 
     def sobel_h(image):
         return convolve(image, HSOBEL_WEIGHTS, mode='wrap')

@@ -23,7 +23,7 @@ from lib_google_img.google_images_download import google_images_download
 
 algorithms = ['random', 'overlap', 'overlap-and-cut']
 
-def add_picture_to_canvas(c, pic, desc):
+def add_picture_to_canvas(pic, desc: str, c: canvas):
     (w, h) = read_image(pic).shape[0:2]
     c.setPageSize((max(h, 500), w + 100))
     c.drawInlineImage(str(pic), 0, 0)
@@ -45,11 +45,21 @@ def gen_from_sample(sample: Path, tmp_dir: Path):
              '--output-size', *['500', '500'],
              '--algorithm', algo,
              '--texture-block-count', str(10000)],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL)
+            stdout=subprocess.DEVNULL)
 
+def gen_textured(texture: Path, out: Path, target: Path):
+    subprocess.check_call(['python3', 'main.py',
+        '--sample', str(texture),
+        '--output', str(out),
+        '--overlap', str(0.16),
+        '--texture-block-size', *['50', '50'],
+        '--texture-block-count', str(1000),
+        '--algorithm', 'texture-transfer',
+        '--transfer-image', str(target),
+        '--transfer-niterations', str(5)],
+        stdout=subprocess.DEVNULL)
 
-def add_task_1_1(c, tmp_dir: Path, data_dir: Path):
+def add_task_1_1(tmp_dir: Path, data_dir: Path):
     canvas_todos = []
 
     with concurrent.futures.ProcessPoolExecutor() as e:
@@ -57,14 +67,28 @@ def add_task_1_1(c, tmp_dir: Path, data_dir: Path):
             sample = Path(f)
             e.submit(gen_from_sample, sample, tmp_dir)
 
-            canvas_todos.append(functools.partial(add_picture_to_canvas, c, sample, '{} original'.format(sample.stem)))
+            canvas_todos.append(functools.partial(add_picture_to_canvas, sample, '{} original'.format(sample.stem)))
 
             for algo in algorithms:
                 out = out_file(tmp_dir, sample, algo)
-                canvas_todos.append(functools.partial(add_picture_to_canvas, c, out, '{} with algorithm {}'.format(sample.stem, algo)))
+                canvas_todos.append(functools.partial(add_picture_to_canvas, out, '{} with algorithm {}'.format(sample.stem, algo)))
 
-    for f in canvas_todos:
-        f()
+    return canvas_todos
+
+def add_task_1_2(tmp_dir: Path, data_dir: Path):
+
+    target = data_dir / 'eminescu.jpg'
+    texture = data_dir / 'rice.jpg'
+    out = data_dir / 'eminescu_transfer.jpg'
+
+    canvas_todos = []
+    canvas_todos.append(functools.partial(add_picture_to_canvas, target, 'eminescu original'))
+    canvas_todos.append(functools.partial(add_picture_to_canvas, out, 'eminescu with rice'))
+
+    with concurrent.futures.ProcessPoolExecutor() as e:
+        e.submit(gen_textured(texture, out, target))
+
+    return canvas_todos
 
 
 def main():
@@ -98,7 +122,17 @@ def main():
     c.drawCentredString(300, 500, 'Stavarache Petru-Eric, Grupa 334')
     c.showPage()
 
-    add_task_1_1(c, tmp_dir, data_dir)
+    canvas_todos = []
+    with concurrent.futures.ProcessPoolExecutor() as e:
+        futures = []
+        futures.append(e.submit(add_task_1_1, tmp_dir, data_dir))
+        futures.append(e.submit(add_task_1_2, tmp_dir, data_dir))
+
+        for f in futures:
+            canvas_todos.extend(f.result())
+
+    for f in canvas_todos:
+        f(c)
 
     c.save()
 
