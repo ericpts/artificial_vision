@@ -8,10 +8,3 @@ install:
 
 script:
     - python3 generate_all_pdfs.py
-
-deploy:
-    provider: pages
-    skip_cleanup: true
-    github_token: $GITHUB_TOKEN
-    on:
-        branch: pdfs
