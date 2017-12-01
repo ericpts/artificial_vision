@@ -2,8 +2,11 @@
 
 [![Build Status](https://travis-ci.org/ericpts/artificial_vision.svg?branch=master)](https://travis-ci.org/ericpts/artificial_vision)
 
-## Information
-Each project has its' own subdirectory.
-You should download the `ProjectX.zip` and unzip it in corresponding directory, so that `generate_pdf.py` will work with the defaults.
+These are my projects for the Artificial Intelligence Unibuc-FMI course.
 
-Alternatively, unzip it somewhere else and look to `generate_pdf.py --help` for how to give the correct paths.
+## Building
+Run `setup.sh` and then `python3 generate_all_pdfs.py`.
+
+## General Information
+Each project has its' own subdirectory.
+The project details are available on moodle, and I have provided just the data part of them so that the repo has everything it needs to generate the final results.
