@@ -4,7 +4,7 @@ class Parameters(object):
                  block_width: int, block_height: int,
                  blocks_per_width: int, blocks_per_height: int,
                  nchannels: int,
-                 overlap: float = None):
+                 overlap: float = None, transfer_coefficient: float = None):
 
         self.output_width = output_width
         self.output_height = output_height
@@ -15,6 +15,7 @@ class Parameters(object):
 
         self.nchannels = nchannels
         self.overlap = overlap
+        self.transfer_coefficient = transfer_coefficient
 
         self.overlap_height = int(self.block_height * self.overlap)
         self.overlap_width = int(self.block_width * self.overlap)

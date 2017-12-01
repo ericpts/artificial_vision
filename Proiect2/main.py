@@ -15,33 +15,11 @@ from skimage.viewer.canvastools import RectangleTool
 import numpy as np
 
 from scipy import ndarray
-from scipy.ndimage import convolve
 
 from tqdm import tqdm
 
 sys.path.append('../')
 from util import *
-
-HSOBEL_WEIGHTS = np.array([[1, 2, 1],
-                           [0, 0, 0],
-                           [-1, -2, -1]]) / 4.0
-VSOBEL_WEIGHTS = HSOBEL_WEIGHTS.T
-
-INF = 2**60
-
-
-def image_energy(img):
-    grayscale = skimage.color.rgb2gray(img)
-
-    def sobel_h(image):
-        return convolve(image, HSOBEL_WEIGHTS, mode='wrap')
-
-    def sobel_v(image):
-        return convolve(image, VSOBEL_WEIGHTS, mode='wrap')
-
-    return np.sqrt(
-        sobel_h(grayscale)**2 + sobel_v(grayscale)**2
-    ) / np.sqrt(2)
 
 
 def get_column_path_fn(strategy):

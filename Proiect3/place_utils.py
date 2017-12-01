@@ -22,11 +22,7 @@ def start_with_params(params: Parameters, i: int, j: int):
     """ Returns the starting coordinates of the (i, j) position.
     Takes into consideration overlap.
     """
-
-    overlap_width = int(params.overlap * params.block_width)
-    overlap_height = int(params.overlap * params.block_height)
-
     (start_height, start_width) = (i * params.block_height, j * params.block_width)
-    start_height -= i * overlap_height
-    start_width -= j * overlap_width
+    start_height -= i * params.overlap_height
+    start_width -= j * params.overlap_width
     return (start_height, start_width)
