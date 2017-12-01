@@ -21,7 +21,8 @@ COLLECTION_DIR = "./data/colectie/"
 CIFAR_DIR = "./cifar-10-batches-py/"
 HORIZONTAL_PIECES = 100
 PLACE_RANDOM = False
-GRID_ALLOW_DUPLICATES=False
+GRID_ALLOW_DUPLICATES = False
+
 
 def generate_image_in_memory(args):
     if args.use_cifar:
@@ -55,7 +56,11 @@ def generate_image_in_memory(args):
     print("Collection.shape = {}".format(collection[0].shape))
 
     if args.random:
-        chunks = split_image(target, horizontal_pieces_count, vertical_pieces_count, random_split=True)
+        chunks = split_image(
+            target,
+            horizontal_pieces_count,
+            vertical_pieces_count,
+            random_split=True)
     else:
         chunks = split_image(target, horizontal_pieces_count, vertical_pieces_count)
 
@@ -63,20 +68,50 @@ def generate_image_in_memory(args):
 
     return render_chunks(chunks, collection)
 
+
 def main():
-    parser = argparse.ArgumentParser(description = 'Mimic a picture by creating a grid made out of sample pictures.')
-    parser.add_argument('--collection_dir', dest='collection_dir', default=COLLECTION_DIR, type=str, help='Where to find the project base pictures')
-    parser.add_argument('--cifar_dir', dest='cifar_dir', default=CIFAR_DIR, type=str, help='Where to find the project CIFAR pictures')
-    parser.add_argument('--random', dest='random', action='store_true', default=PLACE_RANDOM, help='Whether to place pictures randomly')
-    parser.add_argument('--allow_duplicates', action='store_true', dest='allow_duplicates', default=GRID_ALLOW_DUPLICATES, help='Whether to allow adjacent duplicates')
-    parser.add_argument('--horizontal_pieces', dest='horizontal_pieces', type=int, default=HORIZONTAL_PIECES, help='How many pieces to plaze horizontally')
-    parser.add_argument('--use_cifar', dest='use_cifar', action='store_true', default=False, help='Whether to use the cifar pictures for construction')
-    parser.add_argument('--cifar_label', dest='cifar_label', type=str, help='What type of cifar pictures to use')
+    parser = argparse.ArgumentParser(
+        description='Mimic a picture by creating a grid made out of sample pictures.')
+    parser.add_argument(
+        '--collection_dir',
+        dest='collection_dir',
+        default=COLLECTION_DIR,
+        type=str,
+        help='Where to find the project base pictures')
+    parser.add_argument('--cifar_dir', dest='cifar_dir', default=CIFAR_DIR,
+                        type=str, help='Where to find the project CIFAR pictures')
+    parser.add_argument(
+        '--random',
+        dest='random',
+        action='store_true',
+        default=PLACE_RANDOM,
+        help='Whether to place pictures randomly')
+    parser.add_argument(
+        '--allow_duplicates',
+        action='store_true',
+        dest='allow_duplicates',
+        default=GRID_ALLOW_DUPLICATES,
+        help='Whether to allow adjacent duplicates')
+    parser.add_argument(
+        '--horizontal_pieces',
+        dest='horizontal_pieces',
+        type=int,
+        default=HORIZONTAL_PIECES,
+        help='How many pieces to plaze horizontally')
+    parser.add_argument(
+        '--use_cifar',
+        dest='use_cifar',
+        action='store_true',
+        default=False,
+        help='Whether to use the cifar pictures for construction')
+    parser.add_argument('--cifar_label', dest='cifar_label', type=str,
+                        help='What type of cifar pictures to use')
     parser.add_argument('target', type=str, help='Target picture to recreate')
     parser.add_argument('output', type=str, help='Where to store the generated picture')
 
     args = parser.parse_args()
     misc.imsave(args.output, generate_image_in_memory(args))
+
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1,10 +1,10 @@
 class Parameters(object):
     def __init__(self,
-            output_width: int, output_height: int,
-            block_width: int, block_height: int,
-            blocks_per_width: int, blocks_per_height: int,
-            nchannels: int,
-            overlap: float = None):
+                 output_width: int, output_height: int,
+                 block_width: int, block_height: int,
+                 blocks_per_width: int, blocks_per_height: int,
+                 nchannels: int,
+                 overlap: float = None):
 
         self.output_width = output_width
         self.output_height = output_height
@@ -18,4 +18,3 @@ class Parameters(object):
 
         self.overlap_height = int(self.block_height * self.overlap)
         self.overlap_width = int(self.block_width * self.overlap)
-

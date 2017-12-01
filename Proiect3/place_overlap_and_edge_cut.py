@@ -1,41 +1,47 @@
 from place_utils import *
 
+
 def energy_horizontal_with_params(
         params: Parameters, blocks: List, output: ndarray, i: int, j: int, piece: int) -> ndarray:
     """ Calculate the horizontal energy matrix for placing `piece` on the (i, j)'th spot. """
-    assert j != 0 # This is the first piece in its' row, so there is no neighbour to the left.
+    assert j != 0  # This is the first piece in its' row, so there is no neighbour to the left.
 
     overlap_width = int(params.overlap * params.block_width)
     (start_height, start_width) = start_with_params(params, i, j)
 
-    output_chunk = output[start_height : start_height + params.block_height, start_width : start_width + overlap_width]
+    output_chunk = output[start_height: start_height + params.block_height,
+                          start_width: start_width + overlap_width]
 
     # Take all lines of the block, but only columns 0 .. overlap_width - 1 (chop off the left side).
     piece_chunk = blocks[piece][:, : overlap_width]
 
     energy = np.sum(
-            (output_chunk - piece_chunk) ** 2,
-            axis=(2, )
-            )
+        (output_chunk - piece_chunk) ** 2,
+        axis=(2, )
+    )
     return energy
+
 
 def energy_vertical_with_params(
         params: Parameters, blocks: List, output: ndarray, i: int, j: int, piece: int) -> ndarray:
     """ Calculate the vertical energy matrix for placing `piece` on the (i, j)'th spot. """
-    assert i != 0 # This piece is on the first row, so there are no neighbours below it.
+    assert i != 0  # This piece is on the first row, so there are no neighbours below it.
 
     overlap_height = int(params.overlap * params.block_height)
     (start_height, start_width) = start_with_params(params, i, j)
 
-    output_chunk = output[start_height : start_height + overlap_height, start_width : start_width + params.block_width]
-    # Take only the top 0..overlap_height - 1 rows, and all columns inside them (chop off the bottom side).
+    output_chunk = output[start_height: start_height + overlap_height,
+                          start_width: start_width + params.block_width]
+    # Take only the top 0..overlap_height - 1 rows, and all columns inside
+    # them (chop off the bottom side).
     piece_chunk = blocks[piece][: overlap_height, :]
 
     energy = np.sum(
-            (output_chunk - piece_chunk) ** 2,
-            axis=(2, )
-            )
+        (output_chunk - piece_chunk) ** 2,
+        axis=(2, )
+    )
     return energy
+
 
 def distance_horizontal_with_params(
         params: Parameters, blocks: List, output: ndarray, i: int, j: int, piece: int) -> ndarray:
@@ -49,6 +55,7 @@ def distance_horizontal_with_params(
         ret += energy[i, j]
     return ret
 
+
 def distance_vertical_with_params(
         params: Parameters, blocks: List, output: ndarray, i: int, j: int, piece: int) -> ndarray:
     """ Calculates the vertical overlap cost of placing `piece` on poisition (i, j). """
@@ -61,6 +68,7 @@ def distance_vertical_with_params(
         ret += energy[j, i]
     return ret
 
+
 def texture_cost_with_params(
         params: Parameters, blocks: List, output: ndarray, i: int, j: int, piece: int) -> float:
     """ Get the texture-based cost of placing `piece` on (i, j). """
@@ -70,6 +78,7 @@ def texture_cost_with_params(
     if j > 0:
         ret += distance_horizontal_with_params(params, blocks, output, i, j, piece)
     return ret
+
 
 def place_with_params(
         params: Parameters, blocks: List, output: ndarray, i: int, j: int, piece: int):
@@ -83,17 +92,17 @@ def place_with_params(
 
     if j > 0:
         horizontal_path = get_column_path_dynamicprogramming(
-                energy_horizontal_with_params(params, blocks, output, i, j, piece))
+            energy_horizontal_with_params(params, blocks, output, i, j, piece))
         for (row, col) in horizontal_path.items():
             place_mask[row, : col] = False
     if i > 0:
         vertical_path = get_column_path_dynamicprogramming(
-                transpose(energy_vertical_with_params(params, blocks, output, i, j, piece)))
+            transpose(energy_vertical_with_params(params, blocks, output, i, j, piece)))
         for (col, row) in vertical_path.items():
             place_mask[: row, col] = False
 
-    np.copyto(dst=output[start_height : start_height + params.block_height,
-                         start_width : start_width + params.block_width],
+    np.copyto(dst=output[start_height: start_height + params.block_height,
+                         start_width: start_width + params.block_width],
               src=blocks[piece],
               where=place_mask)
 
@@ -123,7 +132,8 @@ def place_overlap_and_edge_cut(params: Parameters, blocks: List) -> ndarray:
 
         sample_blocks = random.sample(range(len(blocks)), min(1000, len(blocks)))
 # Only choose a subset of blocks to consider.
-# If we do not do this, the picture will end up consisting of the same 3-4 blocks repeated over and over.
+# If we do not do this, the picture will end up consisting of the same 3-4
+# blocks repeated over and over.
         best, best_cost = (sample_blocks[0], cost(sample_blocks[0]))
         for b in sample_blocks:
             now_cost = cost(b)
@@ -135,16 +145,17 @@ def place_overlap_and_edge_cut(params: Parameters, blocks: List) -> ndarray:
     def place(i: int, j: int, piece: int):
         place_with_params(params, blocks, output, i, j, piece)
 
-    output = ndarray(
-            shape=(params.output_height - (params.blocks_per_height - 1) * params.overlap_height
-                , params.output_width - (params.blocks_per_width - 1) * params.overlap_width
-                , params.nchannels), dtype=np.uint8)
-
+    output = ndarray(shape=(params.output_height -
+                            (params.blocks_per_height -
+                             1) *
+                            params.overlap_height, params.output_width -
+                            (params.blocks_per_width -
+                             1) *
+                            params.overlap_width, params.nchannels), dtype=np.uint8)
 
     for i in tqdm(range(params.blocks_per_height)):
         for j in range(params.blocks_per_width):
             piece = get_best_fit(i, j)
             place(i, j, piece)
-
 
     return output

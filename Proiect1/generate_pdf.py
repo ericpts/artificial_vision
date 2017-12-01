@@ -15,7 +15,18 @@ from util import read_image
 
 from lib_google_img.google_images_download import google_images_download
 
-CIFAR_LABELS = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
+CIFAR_LABELS = [
+    'airplane',
+    'automobile',
+    'bird',
+    'cat',
+    'deer',
+    'dog',
+    'frog',
+    'horse',
+    'ship',
+    'truck']
+
 
 def gen_extra_args():
     ret = []
@@ -37,6 +48,7 @@ def gen_extra_args():
     desc += ' with {} pieces per horizontal.'.format(n)
 
     return (ret, desc)
+
 
 def add_picture_to_canvas(pic, desc, c):
     (w, h) = read_image(pic).shape[0:2]
@@ -60,6 +72,7 @@ def add_sample_collection_pictures(c, tmp_dir, collection_dir, targets):
         gen_for_target(t, extra_args, out_file)
         add_picture_to_canvas(out_file, desc, c)
 
+
 def add_cifar_pictures(c, tmp_dir, cifar_dir, cifar_labels):
 
     def gen_for_label(l, extra_args, out_file):
@@ -67,14 +80,24 @@ def add_cifar_pictures(c, tmp_dir, cifar_dir, cifar_labels):
         print('Generating pic for cif label {} ...'.format(l))
 
         LIMIT = 10
-        links = google_images_download.get_image_links(search_keywords=[l], keywords=['high resolution'], requests_delay=0, limit=LIMIT)
+        links = google_images_download.get_image_links(
+            search_keywords=[l],
+            keywords=['high resolution'],
+            requests_delay=0, limit=LIMIT)
 
         at = 0
         while at < LIMIT:
             target = links[at]
             try:
                 print("Generating {} from {} ... ".format(out_file, target))
-                gen_args = [str(target), '--use_cifar', '--cifar_dir', cifar_dir, '--cifar_label', l, out_file] + extra_args
+                gen_args = [
+                    str(target),
+                    '--use_cifar',
+                    '--cifar_dir',
+                    cifar_dir,
+                    '--cifar_label',
+                    l,
+                    out_file] + extra_args
                 subprocess.check_call(['python3', 'main.py'] + gen_args)
                 print("done generating {}".format(out_file))
                 return target
@@ -92,13 +115,27 @@ def add_cifar_pictures(c, tmp_dir, cifar_dir, cifar_labels):
         add_picture_to_canvas(out_file, desc, c)
 
 
-
 def main():
-    parser = argparse.ArgumentParser(description = 'Generate project pdf.')
+    parser = argparse.ArgumentParser(description='Generate project pdf.')
     parser.add_argument('output', type=str, help='Where to store the generated pdf')
-    parser.add_argument('--target_dir', default='./data/imaginiTest/', dest='target_dir', type=str, help='Where to find the target images for the base project')
-    parser.add_argument('--collection_dir', default='./data/colectie/', dest='collection_dir', type=str, help='Where to find the collection images for the base project')
-    parser.add_argument('--cifar_dir', default='./cifar-10-batches-py/', dest='cifar_dir', type=str, help='Where to find the cifar images')
+    parser.add_argument(
+        '--target_dir',
+        default='./data/imaginiTest/',
+        dest='target_dir',
+        type=str,
+        help='Where to find the target images for the base project')
+    parser.add_argument(
+        '--collection_dir',
+        default='./data/colectie/',
+        dest='collection_dir',
+        type=str,
+        help='Where to find the collection images for the base project')
+    parser.add_argument(
+        '--cifar_dir',
+        default='./cifar-10-batches-py/',
+        dest='cifar_dir',
+        type=str,
+        help='Where to find the cifar images')
 
     args = parser.parse_args()
 
@@ -116,5 +153,7 @@ def main():
     add_cifar_pictures(c, tmp_dir, args.cifar_dir, CIFAR_LABELS)
 
     c.save()
+
+
 if __name__ == '__main__':
     sys.exit(main())

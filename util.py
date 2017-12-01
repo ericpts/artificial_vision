@@ -16,6 +16,7 @@ import numpy as np
 
 INF = 2**60
 
+
 class ImageChunk(object):
     def __init__(self, index, start_w, start_h, len_w, len_h, data, neighbours=[]):
         self.index = index
@@ -30,7 +31,6 @@ class ImageChunk(object):
 
         self.end_w = self.start_w + self.len_w
         self.end_h = self.start_h + self.len_h
-
 
 
 def unpickle(file):
@@ -62,15 +62,17 @@ def read_cifar(cifar_dir):
         return row
 
     d = {
-            'labels': labels,
-            'images': [cifar_data_row_to_image(r) for r in data],
+        'labels': labels,
+        'images': [cifar_data_row_to_image(r) for r in data],
     }
 
     return ([l.decode('utf-8') for l in label_names[b'label_names']], d)
 
+
 def read_image(file_name):
     return normalize_image(skimage.io.imread(file_name))
     # return normalize_image(plt.imread(file_name))
+
 
 def read_collection(collection_dir):
     images = []
@@ -78,19 +80,23 @@ def read_collection(collection_dir):
         images.append(read_image("{}{}".format(collection_dir, x)))
     return images
 
+
 def average_color(img):
     ret = numpy.mean(img, axis=(0, 1))
-    if type(ret) == numpy.float64:
+    if isinstance(ret, numpy.float64):
         # Convert from black and white to RGB.
         return [ret, ret, ret]
     return ret
+
 
 def make_kd_tree(collection):
     collection_colors = [average_color(x) for x in collection]
     return KDTree(collection_colors)
 
+
 def find_in_kd_tree(target, kd_tree, neighbours_count=1):
     return kd_tree.query(average_color(target), k=neighbours_count)[1]
+
 
 def normalize_image(img):
     ret = misc.imresize(img, 100)
@@ -99,7 +105,13 @@ def normalize_image(img):
         ret = np.delete(ret, axis=2, obj=3)
     return ret
 
-def split_image(target, pieces_per_horizontal, pieces_per_vertical, random_split=False, random_coef=5):
+
+def split_image(
+        target,
+        pieces_per_horizontal,
+        pieces_per_vertical,
+        random_split=False,
+        random_coef=5):
     (big_w, big_h) = target.shape[0:2]
     assert big_w % pieces_per_horizontal == 0
     assert big_h % pieces_per_vertical == 0
@@ -121,14 +133,14 @@ def split_image(target, pieces_per_horizontal, pieces_per_vertical, random_split
 
                 def add_if_there(i, j):
                     if (i, j) in grid:
-                        neighbours.append(grid[(i,j)])
+                        neighbours.append(grid[(i, j)])
 
                 add_if_there(i + 1, j)
                 add_if_there(i - 1, j)
                 add_if_there(i, j + 1)
                 add_if_there(i, j - 1)
 
-                now_target = target[start_w : start_w + small_w, start_h : start_h + small_h]
+                now_target = target[start_w: start_w + small_w, start_h: start_h + small_h]
                 now = ImageChunk(index, start_w, start_h, small_w, small_h, now_target, neighbours)
                 ret.append(now)
 
@@ -145,7 +157,7 @@ def split_image(target, pieces_per_horizontal, pieces_per_vertical, random_split
             start_w = random.randint(0, big_w - small_w)
             start_h = random.randint(0, big_h - small_h)
 
-            now_target = target[start_w : start_w + small_w, start_h : start_h + small_h]
+            now_target = target[start_w: start_w + small_w, start_h: start_h + small_h]
             ret.append(ImageChunk(index, start_w, start_h, small_w, small_h, now_target))
             index += 1
         return ret
@@ -155,18 +167,21 @@ def split_image(target, pieces_per_horizontal, pieces_per_vertical, random_split
     else:
         return split_into_grid()
 
+
 def get_vertical_piece_count(target, sample, horizontal_pieces_count):
     (big_w, big_h) = target.shape[0:2]
     (small_w, small_h) = sample.shape[0:2]
     new_big_w = small_w * horizontal_pieces_count
     new_big_h = (big_h / big_w) * new_big_w
     vertical_pieces_count = int(new_big_h / small_h)
-    return  vertical_pieces_count
+    return vertical_pieces_count
+
 
 def resize_target(target, sample, pieces_per_horizontal, pieces_per_vertical):
     (small_w, small_h) = sample.shape[0:2]
     (big_w, big_h) = (pieces_per_horizontal * small_w, pieces_per_vertical * small_h)
     return misc.imresize(target, (big_w, big_h))
+
 
 def solve_for_chunks(chunks, kd_tree, allow_duplicates):
     def choose_best_unique(chunk):
@@ -191,14 +206,16 @@ def solve_for_chunks(chunks, kd_tree, allow_duplicates):
 
         c.chosen = chosen
 
+
 def render_chunks(chunks, collection):
     width = max([c.end_w for c in chunks])
     height = max([c.end_h for c in chunks])
 
     output = ndarray(shape=(width, height, 3), dtype=int)
     for c in chunks:
-        output[c.start_w : c.end_w, c.start_h : c.end_h] = collection[c.chosen]
+        output[c.start_w: c.end_w, c.start_h: c.end_h] = collection[c.chosen]
     return output
+
 
 def neighbours_with_limits(n, m, i, j):
     assert i > 0
@@ -213,11 +230,13 @@ def neighbours_with_limits(n, m, i, j):
         (i - 1, j - 1),
         (i - 1, j),
         (i - 1, j + 1)
-        ]
+    ]
+
 
 def get_column_path_dynamicprogramming(energy):
     """ Returns the path, a dict from line to column. """
     (n, m) = energy.shape[0:2]
+
     def neighbours(i, j):
         return neighbours_with_limits(n, m, i, j)
 
@@ -231,10 +250,10 @@ def get_column_path_dynamicprogramming(energy):
         shift_right = np.append([INF], best[i - 1][:-1])
 
         best[i] = energy[i] + np.minimum(
-                best[i - 1],
-                np.minimum(shift_left,
-                    shift_right)
-                )
+            best[i - 1],
+            np.minimum(shift_left,
+                       shift_right)
+        )
 
     starting = 0
     for j in range(m):
@@ -247,6 +266,7 @@ def get_column_path_dynamicprogramming(energy):
                 return nbr
 
     path = {}
+
     def reconstruct_path(i, j):
         path[i] = j
         while i > 0:
@@ -257,8 +277,10 @@ def get_column_path_dynamicprogramming(energy):
 
     return path
 
+
 def get_column_path_random(energy):
     (n, m) = energy.shape[0:2]
+
     def neighbours(i, j):
         return neighbours_with_limits(n, m, i, j)
 
@@ -272,8 +294,10 @@ def get_column_path_random(energy):
     path[i] = j
     return path
 
+
 def get_column_path_greedy(energy):
     (n, m) = energy.shape[0:2]
+
     def neighbours(i, j):
         return neighbours_with_limits(n, m, i, j)
 
@@ -295,11 +319,11 @@ def get_column_path_greedy(energy):
     path[i] = j
     return path
 
+
 def transpose(img):
     if len(img.shape) == 3:
-        return np.transpose(img, axes=(1,0,2))
+        return np.transpose(img, axes=(1, 0, 2))
     elif len(img.shape) == 2:
-        return np.transpose(img, axes=(1,0))
+        return np.transpose(img, axes=(1, 0))
 
     assert False
-

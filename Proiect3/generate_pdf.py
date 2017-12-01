@@ -19,6 +19,7 @@ from util import read_image
 from scipy import misc
 from lib_google_img.google_images_download import google_images_download
 
+
 def add_picture_to_canvas(c, pic, desc):
     (w, h) = read_image(pic).shape[0:2]
     c.setPageSize((max(h, 500), w + 100))
@@ -39,21 +40,29 @@ def add_task_1_1(c, tmp_dir_path: Path, data_dir: Path):
             print('Generating {}'.format(out))
 
             subprocess.check_call(
-                    ['python3', 'main.py',
-                        '--sample', f,
-                        '--output', str(out),
-                        '--overlap', str(0.16),
-                        '--texture-block-size', *['50', '50'],
-                        '--output-size', *['500', '500'],
-                        '--algorithm', algo,
-                        '--texture-block-count', str(10000)])
+                ['python3', 'main.py',
+                 '--sample', f,
+                 '--output', str(out),
+                 '--overlap', str(0.16),
+                 '--texture-block-size', *['50', '50'],
+                 '--output-size', *['500', '500'],
+                 '--algorithm', algo,
+                 '--texture-block-count', str(10000)])
             add_picture_to_canvas(c, out, '{} with algorithm {}'.format(fpath.stem, algo))
 
+
 def main():
-    parser = argparse.ArgumentParser(description = 'Generate project pdf.')
+    parser = argparse.ArgumentParser(description='Generate project pdf.')
     parser.add_argument('output', type=str, help='Where to store the generated pdf.')
-    parser.add_argument('--data_dir', default='./data/', type=str, help='Where to find the image data.')
-    parser.add_argument('--clean', action='store_true', help='Clean all previously downloaded resources.')
+    parser.add_argument(
+        '--data_dir',
+        default='./data/',
+        type=str,
+        help='Where to find the image data.')
+    parser.add_argument(
+        '--clean',
+        action='store_true',
+        help='Clean all previously downloaded resources.')
     args = parser.parse_args()
 
     c = canvas.Canvas(args.output)
@@ -80,4 +89,3 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
-
