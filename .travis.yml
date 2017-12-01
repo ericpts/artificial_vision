@@ -8,3 +8,7 @@ install:
 
 script:
     - python3 generate_all_pdfs.py
+
+cache:
+    directories:
+        - Proiect1/cifar-10-batches-py
