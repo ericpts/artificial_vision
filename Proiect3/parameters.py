@@ -16,3 +16,6 @@ class Parameters(object):
         self.nchannels = nchannels
         self.overlap = overlap
 
+        self.overlap_height = int(self.block_height * self.overlap)
+        self.overlap_width = int(self.block_width * self.overlap)
+

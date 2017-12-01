@@ -30,16 +30,24 @@ def add_picture_to_canvas(c, pic, desc):
 def add_task_1_1(c, tmp_dir_path: Path, data_dir: Path):
     for f in glob.glob(str(data_dir / 'img*.png')):
         fpath = Path(f)
-        out = tmp_dir_path / '{}_out.jpg'.format(fpath.stem)
-        subprocess.check_call(
-                ['python3', 'main.py',
-                    '--sample', f,
-                    '--output', str(out),
-                    '--overlap', str(0.16),
-                    '--texture-block-size', *['50', '50'],
-                    '--output-size', *['500', '500'],
-                    '--texture-block-count', str(1000)])
-        add_picture_to_canvas(c, out, fpath.stem)
+        algorithms = ['random', 'overlap', 'overlap-and-cut']
+
+        add_picture_to_canvas(c, fpath, '{} original'.format(fpath.stem))
+        for algo in algorithms:
+            out = tmp_dir_path / '{}_{}_out.jpg'.format(fpath.stem, algo)
+
+            print('Generating {}'.format(out))
+
+            subprocess.check_call(
+                    ['python3', 'main.py',
+                        '--sample', f,
+                        '--output', str(out),
+                        '--overlap', str(0.16),
+                        '--texture-block-size', *['50', '50'],
+                        '--output-size', *['500', '500'],
+                        '--algorithm', algo,
+                        '--texture-block-count', str(10000)])
+            add_picture_to_canvas(c, out, '{} with algorithm {}'.format(fpath.stem, algo))
 
 def main():
     parser = argparse.ArgumentParser(description = 'Generate project pdf.')

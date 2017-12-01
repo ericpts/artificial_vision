@@ -8,12 +8,7 @@ def place_overlap(params: Parameters, blocks: List) -> ndarray:
     """ Returns the generated picture. """
 
     def start(i: int, j: int):
-        (start_height, start_width) = (i * params.block_height, j * params.block_width)
-
-        start_height -= i * overlap_height
-        start_width -= j * overlap_width
-
-        return (start_height, start_width)
+        return start_with_params(params, i, j)
 
     def place_piece_on_output(output: ndarray, i: int, j: int, piece: int):
         (start_height, start_width) = start(i, j)

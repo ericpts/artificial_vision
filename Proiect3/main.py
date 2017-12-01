@@ -41,12 +41,15 @@ def main():
     parser.add_argument('--texture-block-count', required=True, type=int, help='How many texture blocks to sample.')
     parser.add_argument('--output-size', nargs=2, required=True, type=int, metavar=('width', 'height'), help='Size of the output picture.')
     parser.add_argument('--overlap', default=1/6, type=float, help='How much neighbouring textures should overlap.')
+    parser.add_argument('--algorithm', required=True, type=str, choices=['random' , 'overlap', 'overlap-and-cut'], help='Which algorithm to use.')
     args = parser.parse_args()
 
     (output_width, output_height) = args.output_size
     (block_width, block_height) = args.texture_block_size
 
-    (blocks_per_width, blocks_per_height) = (output_width // block_width, output_height // block_height)
+    (blocks_per_width, blocks_per_height) = (
+            int(1 + (output_width - block_width) // (block_width - args.overlap * block_width)),
+            int(1 + (output_height - block_height) // (block_height - args.overlap * block_height)))
 
     assert blocks_per_width > 0
     assert blocks_per_height > 0
@@ -75,9 +78,16 @@ def main():
         block = sample_img[h : h + block_height, w : w + block_width]
         blocks.append(block)
 
-    output = place_overlap_and_edge_cut(params, blocks)
+    if args.algorithm == 'random':
+        output = place_random(params, blocks)
+    elif args.algorithm == 'overlap':
+        output = place_overlap(params, blocks)
+    elif args.algorithm == 'overlap-and-cut':
+        output = place_overlap_and_edge_cut(params, blocks)
+    else:
+        print('Invalid algorithm: {}'.format(algorithm))
+        sys.exit(-1)
     misc.imsave(args.output, output)
 
-
 if __name__ == '__main__':
-    sys.exit(main())
+    main()
