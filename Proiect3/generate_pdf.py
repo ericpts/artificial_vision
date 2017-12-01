@@ -3,8 +3,10 @@
 from os.path import basename, exists
 import sys
 import glob
+import functools
 import shutil
 import argparse
+import concurrent.futures
 import subprocess
 import tempfile
 import random
@@ -19,6 +21,7 @@ from util import read_image
 from scipy import misc
 from lib_google_img.google_images_download import google_images_download
 
+algorithms = ['random', 'overlap', 'overlap-and-cut']
 
 def add_picture_to_canvas(c, pic, desc):
     (w, h) = read_image(pic).shape[0:2]
@@ -27,28 +30,41 @@ def add_picture_to_canvas(c, pic, desc):
     c.drawCentredString(h / 2, w + 50, desc)
     c.showPage()
 
+def out_file(tmp_dir: Path, sample: Path, algo: str):
+    return tmp_dir / '{}_{}_out.jpg'.format(sample.stem, algo)
 
-def add_task_1_1(c, tmp_dir_path: Path, data_dir: Path):
-    for f in glob.glob(str(data_dir / 'img*.png')):
-        fpath = Path(f)
-        algorithms = ['random', 'overlap', 'overlap-and-cut']
+def gen_from_sample(sample: Path, tmp_dir: Path):
+    for algo in algorithms:
+        out = out_file(tmp_dir, sample, algo)
+        subprocess.check_call(
+            ['python3', 'main.py',
+             '--sample', sample,
+             '--output', str(out),
+             '--overlap', str(0.16),
+             '--texture-block-size', *['50', '50'],
+             '--output-size', *['500', '500'],
+             '--algorithm', algo,
+             '--texture-block-count', str(10000)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL)
 
-        add_picture_to_canvas(c, fpath, '{} original'.format(fpath.stem))
-        for algo in algorithms:
-            out = tmp_dir_path / '{}_{}_out.jpg'.format(fpath.stem, algo)
 
-            print('Generating {}'.format(out))
+def add_task_1_1(c, tmp_dir: Path, data_dir: Path):
+    canvas_todos = []
 
-            subprocess.check_call(
-                ['python3', 'main.py',
-                 '--sample', f,
-                 '--output', str(out),
-                 '--overlap', str(0.16),
-                 '--texture-block-size', *['50', '50'],
-                 '--output-size', *['500', '500'],
-                 '--algorithm', algo,
-                 '--texture-block-count', str(10000)])
-            add_picture_to_canvas(c, out, '{} with algorithm {}'.format(fpath.stem, algo))
+    with concurrent.futures.ProcessPoolExecutor() as e:
+        for f in glob.glob(str(data_dir / 'img*.png')):
+            sample = Path(f)
+            e.submit(gen_from_sample, sample, tmp_dir)
+
+            canvas_todos.append(functools.partial(add_picture_to_canvas, c, sample, '{} original'.format(sample.stem)))
+
+            for algo in algorithms:
+                out = out_file(tmp_dir, sample, algo)
+                canvas_todos.append(functools.partial(add_picture_to_canvas, c, out, '{} with algorithm {}'.format(sample.stem, algo)))
+
+    for f in canvas_todos:
+        f()
 
 
 def main():
@@ -73,7 +89,7 @@ def main():
 
     if args.clean:
         print('Cleaning previous resources.')
-        shutil.rmtree(tmp_dir_path)
+        shutil.rmtree(tmp_dir)
 
     tmp_dir.mkdir(parents=True, exist_ok=True)
 

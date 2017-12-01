@@ -9,6 +9,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 from util import get_column_path_dynamicprogramming, transpose
 
+def distance_matrix(x: ndarray, y: ndarray) -> float:
+    return np.sum(
+            (x - y) ** 2,
+            axis=(2, )
+            )
+
+def distance(x: ndarray, y: ndarray) -> float:
+    return np.sum(distance_matrix(x, y))
 
 def start_with_params(params: Parameters, i: int, j: int):
     """ Returns the starting coordinates of the (i, j) position.

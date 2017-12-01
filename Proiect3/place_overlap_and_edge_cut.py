@@ -15,12 +15,7 @@ def energy_horizontal_with_params(
     # Take all lines of the block, but only columns 0 .. overlap_width - 1 (chop off the left side).
     piece_chunk = blocks[piece][:, : overlap_width]
 
-    energy = np.sum(
-        (output_chunk - piece_chunk) ** 2,
-        axis=(2, )
-    )
-    return energy
-
+    return distance_matrix(output_chunk, piece_chunk)
 
 def energy_vertical_with_params(
         params: Parameters, blocks: List, output: ndarray, i: int, j: int, piece: int) -> ndarray:
@@ -36,37 +31,19 @@ def energy_vertical_with_params(
     # them (chop off the bottom side).
     piece_chunk = blocks[piece][: overlap_height, :]
 
-    energy = np.sum(
-        (output_chunk - piece_chunk) ** 2,
-        axis=(2, )
-    )
-    return energy
+    return distance_matrix(output_chunk, piece_chunk)
 
 
 def distance_horizontal_with_params(
         params: Parameters, blocks: List, output: ndarray, i: int, j: int, piece: int) -> ndarray:
     """ Calculates the horizontal overlap cost of placing `piece` on poisition (i, j). """
-
-    energy = energy_horizontal_with_params(params, blocks, output, i, j, piece)
-    path = get_column_path_dynamicprogramming(energy)
-
-    ret = 0
-    for (i, j) in path.items():
-        ret += energy[i, j]
-    return ret
+    return np.sum(energy_horizontal_with_params(params, blocks, output, i, j, piece))
 
 
 def distance_vertical_with_params(
         params: Parameters, blocks: List, output: ndarray, i: int, j: int, piece: int) -> ndarray:
     """ Calculates the vertical overlap cost of placing `piece` on poisition (i, j). """
-
-    energy = energy_vertical_with_params(params, blocks, output, i, j, piece)
-    path = get_column_path_dynamicprogramming(transpose(energy))
-
-    ret = 0
-    for (i, j) in path.items():
-        ret += energy[j, i]
-    return ret
+    return np.sum(energy_vertical_with_params(params, blocks, output, i, j, piece))
 
 
 def texture_cost_with_params(

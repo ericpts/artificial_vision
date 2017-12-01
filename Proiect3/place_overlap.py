@@ -1,11 +1,6 @@
 from place_utils import *
 import pdb
 
-
-def distance(x: ndarray, y: ndarray) -> float:
-    return np.sum((x - y) ** 2)
-
-
 def place_overlap(params: Parameters, blocks: List) -> ndarray:
     """ Returns the generated picture. """
 
