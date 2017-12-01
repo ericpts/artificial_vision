@@ -39,7 +39,7 @@ class Parameters(object):
         new_block_height -= new_block_height // 3
 
         return Parameters(
-            texture_block_count=self.texture_block_count,
+            texture_block_count=int(self.texture_block_count * 4 / 3),
             init_output_width=self.init_output_width,
             init_output_height=self.init_output_height,
             block_width=new_block_width,

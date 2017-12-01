@@ -13,6 +13,9 @@ def transfer_texture(
         return start_with_params(params, i, j)
 
     def texture_cost(i: int, j: int, piece: int) -> float:
+        # As per the paper, calculate both the overlap cost for the current image (which is the first term of the sum),
+        # and also for the previous image (which is the second term that uses previous_output).
+        # This way we keep the algorithm *on track*.
         return texture_cost_with_params(params,
                                         blocks,
                                         output,
@@ -51,12 +54,17 @@ def transfer_texture(
         return best
 
     def iter(alpha: float, blocks: List):
+        """ Perform an iteration of the texture transfer algorithm.
+        Given `alpha` (which is the weight coefficient) and the list of usable blocks,
+        generate a best matching synthesis.
+        """
         for i in tqdm(range(params.blocks_per_height)):
             for j in range(params.blocks_per_width):
                 piece = get_best_fit(i, j, alpha, blocks)
                 place_with_params(params, blocks, output, i, j, piece)
 
-    def make_blocks(params: Parameters):
+    def make_blocks(params: Parameters) -> List:
+        """ Generate texture blocks for the given configuration. """
         return generate_blocks(
             params.texture_block_count,
             params.block_height,
@@ -67,6 +75,8 @@ def transfer_texture(
     previous_output = np.zeros(shape=image.shape, dtype=image.dtype)
 
     if params.transfer_niterations == 1:
+        # In case there's only one iteration, it does not make sense to use the paper coefficient, as it will be 0.1 and produce uninteresting images.
+        # For this purpose, we let the user specify it.
         blocks = make_blocks(params)
         iter(params.transfer_coefficient, blocks)
         return output

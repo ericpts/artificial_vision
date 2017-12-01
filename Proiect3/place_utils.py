@@ -14,6 +14,11 @@ def generate_blocks(nblocks: int, block_height: int, block_width: int, sample: n
     blocks = []
     (sample_height, sample_width) = sample.shape[0:2]
 
+    max_cnt = sample_height * sample_width
+
+    if nblocks > 4 * max_cnt:
+        nblocks = 4 * max_cnt
+
     for _ in range(nblocks):
         h = random.randint(0, sample_height - block_height)
         w = random.randint(0, sample_width - block_width)
