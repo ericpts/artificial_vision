@@ -18,9 +18,11 @@ from scipy.ndimage import convolve
 
 INF = 2**60
 
+
 def read_image(file_name):
     return normalize_image(skimage.io.imread(file_name))
     # return normalize_image(plt.imread(file_name))
+
 
 def normalize_image(img):
     ret = misc.imresize(img, 100)
@@ -147,8 +149,10 @@ HSOBEL_WEIGHTS = np.array([[1, 2, 1],
                            [-1, -2, -1]]) / 4.0
 VSOBEL_WEIGHTS = HSOBEL_WEIGHTS.T
 
+
 def to_grayscale(img):
     return skimage.color.rgb2gray(img)
+
 
 def image_energy(img):
     grayscale = to_grayscale(img)
@@ -162,4 +166,3 @@ def image_energy(img):
     return np.sqrt(
         sobel_h(grayscale)**2 + sobel_v(grayscale)**2
     ) / np.sqrt(2)
-

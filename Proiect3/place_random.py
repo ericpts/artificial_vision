@@ -6,7 +6,11 @@ def place_random(params: Parameters, sample_img: ndarray) -> ndarray:
     def start(i: int, j: int):
         return start_with_params(params, i, j)
 
-    blocks = generate_blocks(params.texture_block_count, params.block_height, params.block_width, sample_img)
+    blocks = generate_blocks(
+        params.texture_block_count,
+        params.block_height,
+        params.block_width,
+        sample_img)
 
     output = ndarray(
         shape=(

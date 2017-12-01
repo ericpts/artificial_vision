@@ -23,6 +23,7 @@ HORIZONTAL_PIECES = 100
 PLACE_RANDOM = False
 GRID_ALLOW_DUPLICATES = False
 
+
 def split_image(
         target,
         pieces_per_horizontal,

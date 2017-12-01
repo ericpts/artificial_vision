@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from util import get_column_path_dynamicprogramming, transpose, image_energy, to_grayscale
 
+
 def generate_blocks(nblocks: int, block_height: int, block_width: int, sample: ndarray) -> List:
     blocks = []
     (sample_height, sample_width) = sample.shape[0:2]
@@ -25,6 +26,7 @@ def generate_blocks(nblocks: int, block_height: int, block_width: int, sample: n
 
     return blocks
 
+
 def distance_matrix(x: ndarray, y: ndarray) -> float:
     m = (x - y) ** 2
     if len(m.shape) == 3:
@@ -32,8 +34,10 @@ def distance_matrix(x: ndarray, y: ndarray) -> float:
     else:
         return m
 
+
 def distance(x: ndarray, y: ndarray) -> float:
     return np.sum(distance_matrix(x, y))
+
 
 def start_with_params(params: Parameters, i: int, j: int):
     """ Returns the starting coordinates of the (i, j) position.
@@ -43,4 +47,3 @@ def start_with_params(params: Parameters, i: int, j: int):
     start_height -= i * params.overlap_height
     start_width -= j * params.overlap_width
     return (start_height, start_width)
-

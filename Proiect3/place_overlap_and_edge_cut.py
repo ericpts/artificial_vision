@@ -17,6 +17,7 @@ def energy_horizontal_with_params(
 
     return distance_matrix(output_chunk, piece_chunk)
 
+
 def energy_vertical_with_params(
         params: Parameters, blocks: List, output: ndarray, i: int, j: int, piece: int) -> ndarray:
     """ Calculate the vertical energy matrix for placing `piece` on the (i, j)'th spot. """
@@ -122,9 +123,18 @@ def place_overlap_and_edge_cut(params: Parameters, sample_img: ndarray) -> ndarr
     def place(i: int, j: int, piece: int):
         place_with_params(params, blocks, output, i, j, piece)
 
-    blocks = generate_blocks(params.texture_block_count, params.block_height, params.block_width, sample_img)
+    blocks = generate_blocks(
+        params.texture_block_count,
+        params.block_height,
+        params.block_width,
+        sample_img)
 
-    output = ndarray(shape=(params.output_height, params.output_width, params.nchannels), dtype=np.uint8)
+    output = ndarray(
+        shape=(
+            params.output_height,
+            params.output_width,
+            params.nchannels),
+        dtype=np.uint8)
 
     for i in tqdm(range(params.blocks_per_height)):
         for j in range(params.blocks_per_width):

@@ -1,6 +1,7 @@
 from place_utils import *
 import pdb
 
+
 def place_overlap(params: Parameters, sample_img: ndarray) -> ndarray:
     """ Returns the generated picture. """
 
@@ -89,7 +90,11 @@ def place_overlap(params: Parameters, sample_img: ndarray) -> ndarray:
 
         return best
 
-    blocks = generate_blocks(params.texture_block_count, params.block_height, params.block_width, sample_img)
+    blocks = generate_blocks(
+        params.texture_block_count,
+        params.block_height,
+        params.block_width,
+        sample_img)
 
     overlap_height = params.overlap_height
     overlap_width = params.overlap_width

@@ -7,13 +7,23 @@ def transfer_texture(
         params: Parameters,
         texture: ndarray,
         image: ndarray,
-        ) -> ndarray:
+) -> ndarray:
 
     def start(i: int, j: int):
         return start_with_params(params, i, j)
 
     def texture_cost(i: int, j: int, piece: int) -> float:
-        return texture_cost_with_params(params, blocks, output, i, j, piece) + texture_cost_with_params(params, blocks, previous_output, i, j, piece)
+        return texture_cost_with_params(params,
+                                        blocks,
+                                        output,
+                                        i,
+                                        j,
+                                        piece) + texture_cost_with_params(params,
+                                                                          blocks,
+                                                                          previous_output,
+                                                                          i,
+                                                                          j,
+                                                                          piece)
 
     def get_best_fit(i: int, j: int, alpha: float, blocks: List) -> int:
         """ Get the index of the best piece to place on (i, j). """
@@ -21,12 +31,13 @@ def transfer_texture(
             return np.sum(distance_matrix(
                 image_chunk,
                 blocks[piece]))
+
         def cost(piece: int) -> float:
             return alpha * texture_cost(i, j, piece) + (1 - alpha) * correspondence_cost(piece)
 
         (start_height, start_width) = start(i, j)
-        image_chunk = image[start_height : start_height + params.block_height,
-                start_width : start_width + params.block_width]
+        image_chunk = image[start_height: start_height + params.block_height,
+                            start_width: start_width + params.block_width]
 
 # Only choose a subset of blocks to consider.
 # If we do not do this, the picture will end up consisting of the same 3-4
@@ -46,7 +57,11 @@ def transfer_texture(
                 place_with_params(params, blocks, output, i, j, piece)
 
     def make_blocks(params: Parameters):
-        return generate_blocks(params.texture_block_count, params.block_height, params.block_width, texture)
+        return generate_blocks(
+            params.texture_block_count,
+            params.block_height,
+            params.block_width,
+            texture)
 
     output = np.zeros(shape=image.shape, dtype=image.dtype)
     previous_output = np.zeros(shape=image.shape, dtype=image.dtype)

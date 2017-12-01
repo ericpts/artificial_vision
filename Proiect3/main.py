@@ -35,6 +35,7 @@ from place_overlap import place_overlap
 from place_random import place_random
 from transfer_texture import transfer_texture
 
+
 def check_args(args):
     if args.algorithm == 'texture-transfer':
         if not args.transfer_image:
@@ -50,7 +51,9 @@ def check_args(args):
             sys.exit(-4)
 
         if args.transfer_niterations > 1 and args.transfer_coefficient is not None:
-            print('--transfer-niterations {} adjusts its\' own coefficient, so --transfer-coefficient must not be present'.format(args.transfer_niterations))
+            print(
+                '--transfer-niterations {} adjusts its\' own coefficient, so --transfer-coefficient must not be present'.format(
+                    args.transfer_niterations))
             sys.exit(-5)
 
         args.output_size = read_image(args.transfer_image).shape[0:2]
@@ -59,6 +62,7 @@ def check_args(args):
         if not args.output_size:
             print('algorithm {} requires --output-size'.format(args.algorithm))
             sys.exit(-3)
+
 
 def main():
 
