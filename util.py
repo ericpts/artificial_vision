@@ -13,10 +13,14 @@ import os
 import pdb
 import random
 import numpy as np
+import math
 
 from scipy.ndimage import convolve
 
 INF = 2**60
+
+def cmp_eq(a: float, b: float) -> bool:
+    return math.isclose(a, b)
 
 
 def read_image(file_name):
@@ -77,7 +81,7 @@ def get_column_path_dynamicprogramming(energy):
 
     def get_prev(i, j):
         for nbr in neighbours(i, j):
-            if best[nbr] + energy[i][j] == best[i][j]:
+            if cmp_eq(best[nbr] + energy[i][j], best[i][j]):
                 return nbr
 
     path = {}
