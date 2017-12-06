@@ -2,4 +2,5 @@ reportlab
 scikit-image
 matplotlib
 scipy
+tqdm
 
