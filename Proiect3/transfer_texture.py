@@ -45,7 +45,7 @@ def transfer_texture(
 # Only choose a subset of blocks to consider.
 # If we do not do this, the picture will end up consisting of the same 3-4
 # blocks repeated over and over.
-        sample_blocks = random.sample(range(len(blocks)), min(10000, len(blocks)))
+        sample_blocks = random.sample(range(len(blocks)), min(1000, len(blocks)))
         best, best_cost = (sample_blocks[0], cost(sample_blocks[0]))
         for b in sample_blocks:
             now_cost = cost(b)

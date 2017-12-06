@@ -33,6 +33,9 @@ def generate_blocks(nblocks: int, block_height: int, block_width: int, sample: n
 
 
 def distance_matrix(x: ndarray, y: ndarray) -> float:
+    x = x.astype(float)
+    y = y.astype(float)
+
     m = (x - y) ** 2
     if len(m.shape) == 3:
         return np.sum(m, axis=(2, ))
