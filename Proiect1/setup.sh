@@ -2,6 +2,8 @@
 
 tar xf data.tar.gz
 
+mkdir -p _work
+
 if [ -d cifar-10-batches-py ]; then
     echo "Found cifar in cifar-10-batches-py"
 else
