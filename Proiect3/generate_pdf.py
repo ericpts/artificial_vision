@@ -16,10 +16,9 @@ from pathlib import Path
 from reportlab.pdfgen import canvas
 
 sys.path.append('../')
-from util import read_image
+from util import read_image, get_google_images
 
 from scipy import misc
-from lib_google_img.google_images_download import google_images_download
 
 algorithms = ['random', 'overlap', 'overlap-and-cut']
 
@@ -64,46 +63,65 @@ def gen_textured(texture: Path, out: Path, target: Path):
                           stdout=subprocess.DEVNULL)
 
 
-def add_task_1_1(tmp_dir: Path, data_dir: Path):
+def add_task_1_1(executor: concurrent.futures.Executor, tmp_dir: Path, data_dir: Path):
     canvas_todos = []
 
-    with concurrent.futures.ProcessPoolExecutor() as e:
-        for f in glob.glob(str(data_dir / 'img*.png')):
-            sample = Path(f)
-            e.submit(gen_from_sample, sample, tmp_dir)
+    def add_todo(img: Path, desc: str):
+        canvas_todos.append(functools.partial(add_picture_to_canvas, img, desc))
 
-            canvas_todos.append(
-                functools.partial(
-                    add_picture_to_canvas,
-                    sample,
-                    '{} original'.format(
-                        sample.stem)))
+    for f in glob.glob(str(data_dir / 'img*.png')):
+        sample = Path(f)
+        executor.submit(gen_from_sample, sample, tmp_dir)
 
-            for algo in algorithms:
-                out = out_file(tmp_dir, sample, algo)
-                canvas_todos.append(
-                    functools.partial(
-                        add_picture_to_canvas,
-                        out,
-                        '{} with algorithm {}'.format(
-                            sample.stem,
-                            algo)))
+        add_todo(sample, '{} original'.format(
+                    sample.stem))
+
+        for algo in algorithms:
+            out = out_file(tmp_dir, sample, algo)
+            add_todo(out, '{} with algorithm {}'.format(sample.stem, algo))
 
     return canvas_todos
 
 
-def add_task_1_2(tmp_dir: Path, data_dir: Path):
-
-    target = data_dir / 'eminescu.jpg'
-    texture = data_dir / 'rice.jpg'
-    out = data_dir / 'eminescu_transfer.jpg'
-
+def add_task_1_2(executor: concurrent.futures.Executor, tmp_dir: Path, data_dir: Path):
     canvas_todos = []
-    canvas_todos.append(functools.partial(add_picture_to_canvas, target, 'eminescu original'))
-    canvas_todos.append(functools.partial(add_picture_to_canvas, out, 'eminescu with rice'))
 
-    with concurrent.futures.ProcessPoolExecutor() as e:
-        e.submit(gen_textured(texture, out, target))
+    def add_todo(img: Path, desc: str):
+        canvas_todos.append(functools.partial(add_picture_to_canvas, img, desc))
+
+    def add_eminescu():
+        target = data_dir / 'eminescu.jpg'
+        texture = data_dir / 'rice.jpg'
+        out = data_dir / 'eminescu_transfer.jpg'
+
+        add_todo(target, 'eminescu original')
+        add_todo(texture, 'texture sample')
+        add_todo(out, 'eminescu with rice')
+
+        executor.submit(gen_textured, texture, out, target)
+
+    def add_google_images():
+        keywords = [
+                'florin salam',
+                'mark zuckerberg',
+                'mr robot'
+                ]
+
+        for keyword in keywords:
+            target = tmp_dir / '{}_in.jpg'.format(keyword.replace(' ', '_'))
+            output = tmp_dir / '{}_out.jpg'.format(keyword.replace(' ', '_'))
+            texture = data_dir / 'rice.jpg'
+
+            get_google_images([keyword], [target])
+
+            add_todo(target, '{} original'.format(keyword))
+            add_todo(texture, 'texture sample')
+            add_todo(output, '{} textured'.format(keyword))
+
+            executor.submit(gen_textured, texture, output, target)
+
+    add_eminescu()
+    add_google_images()
 
     return canvas_todos
 
@@ -142,11 +160,8 @@ def main():
     canvas_todos = []
     with concurrent.futures.ProcessPoolExecutor() as e:
         futures = []
-        futures.append(e.submit(add_task_1_1, tmp_dir, data_dir))
-        futures.append(e.submit(add_task_1_2, tmp_dir, data_dir))
-
-        for f in futures:
-            canvas_todos.extend(f.result())
+        futures.extend(add_task_1_1(e,  tmp_dir, data_dir))
+        futures.extend(add_task_1_2(e, tmp_dir, data_dir))
 
     for f in canvas_todos:
         f(c)

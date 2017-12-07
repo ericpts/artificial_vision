@@ -6,6 +6,8 @@ from scipy.spatial import KDTree
 from scipy import ndarray
 from scipy import misc
 from pathlib import Path
+from typing import List
+import concurrent.futures
 import math
 import sys
 import matplotlib.pyplot as plt
@@ -14,6 +16,10 @@ import pdb
 import random
 import numpy as np
 import math
+
+from lib_google_img.google_images_download import google_images_download
+import urllib
+
 
 from scipy.ndimage import convolve
 
@@ -144,8 +150,33 @@ def transpose(img):
         return np.transpose(img, axes=(1, 0, 2))
     elif len(img.shape) == 2:
         return np.transpose(img, axes=(1, 0))
-
     assert False
+
+def get_google_images(keywords: List[str], outputs: List[Path], MAX_LINKS=100, overwrite=False):
+    if len(keywords) != len(outputs):
+
+        raise ValueError(
+                'Received more keywords than there are outputs: {} != {}'.format(len(keywords, len(outputs))))
+
+    for (keyword, output) in zip(keywords, outputs):
+        if output.exists() and not overwrite:
+            continue
+
+        links = google_images_download.get_image_links(
+            search_keywords=[keyword],
+            keywords=['high resolution'],
+            requests_delay=0, limit=MAX_LINKS)
+
+        for target_link in links:
+            try:
+                print('Trying to retrieve target link {}'.format(target_link))
+                misc.imsave(output, read_image(target_link))
+                break
+            except urllib.error.HTTPError:
+                continue
+            except OSError:
+                continue
+
 
 
 HSOBEL_WEIGHTS = np.array([[1, 2, 1],
