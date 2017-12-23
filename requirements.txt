@@ -1,7 +1,8 @@
+matplotlib
+pyyaml
 reportlab
 scikit-image
-matplotlib
+scikit-learn
 scipy
 tqdm
-pyyaml
 yapf
