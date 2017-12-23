@@ -1,0 +1,5 @@
+points_on_height: 10
+points_on_width: 10
+
+positive_training_dir: positive
+negative_training_dir: negative
