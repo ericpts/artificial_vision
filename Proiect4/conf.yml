@@ -1,5 +1,5 @@
-points_on_height: 8
-points_on_width: 8
+points_on_height: 32
+points_on_width: 32
 
 cells_per_block: 1
 
