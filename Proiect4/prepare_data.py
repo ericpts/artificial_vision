@@ -38,6 +38,7 @@ def generate_training():
 
             misc.imsave(dest / f.name, resize_image(read_image(f)))
 
+
 def generate_testing():
     positive = Path('positive_testing')
     negative = Path('negative_testing')

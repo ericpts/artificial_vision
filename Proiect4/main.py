@@ -38,11 +38,13 @@ from util import *
 
 from params import Parameters
 
+
 def get_classifier(params: Parameters):
     if params.classifier == 'SVM':
         return svm.SVC()
     elif params.classifier == 'NN':
         return KNeighborsClassifier(n_neighbors=1)
+
 
 def image_descriptor(image: ndarray, params: Parameters) -> ndarray:
     """ Given a image, generate its' feature descriptor. """
@@ -109,15 +111,19 @@ def main():
 
     clf = get_classifier(params).fit(samples, labels)
 
-    positive_testing = [ feature_vector_for_image(read_image(f), params) for f in Path(params.positive_testing_dir).iterdir() ]
-    negative_testing = [ feature_vector_for_image(read_image(f), params) for f in Path(params.negative_testing_dir).iterdir() ]
+    positive_testing = [
+        feature_vector_for_image(read_image(f), params)
+        for f in Path(params.positive_testing_dir).iterdir()
+    ]
+    negative_testing = [
+        feature_vector_for_image(read_image(f), params)
+        for f in Path(params.negative_testing_dir).iterdir()
+    ]
 
     testing_samples = positive_testing + negative_testing
     testing_labels = [1] * len(positive_testing) + [-1] * len(negative_testing)
 
     print(clf.score(testing_samples, testing_labels))
-
-
 
 
 if __name__ == '__main__':
