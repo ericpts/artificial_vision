@@ -1,4 +1,6 @@
-positive
-negative
+positive_training
+negative_training
+positive_testing
+negative_testing
 proiectBOVW.pdf
 data/

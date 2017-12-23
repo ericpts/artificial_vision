@@ -1,5 +1,8 @@
-points_on_height: 10
-points_on_width: 10
+points_on_height: 8
+points_on_width: 8
 
-positive_training_dir: positive
-negative_training_dir: negative
+positive_training_dir: positive_training
+negative_training_dir: negative_training
+
+positive_testing_dir: positive_testing
+negative_testing_dir: negative_testing
