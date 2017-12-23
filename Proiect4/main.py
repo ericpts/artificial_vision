@@ -39,7 +39,7 @@ from util import *
 from params import Parameters
 
 def get_classifier(params: Parameters):
-    if params.classifier == 'SVM': 
+    if params.classifier == 'SVM':
         return svm.SVC()
     elif params.classifier == 'NN':
         return KNeighborsClassifier(n_neighbors=1)
@@ -71,7 +71,7 @@ def main():
     parser = argparse.ArgumentParser(description='Car recogniser.')
 
     parser.add_argument(
-        '-c', '--configuration', required=True, type=str, help='Configuration yaml file.')
+        '-c', '--configuration', default='conf.yml', type=str, help='Configuration yaml file.')
 
     args = parser.parse_args()
 
@@ -106,7 +106,7 @@ def main():
 
         clf = get_classifier(params).fit(X_train, y_train)
         return clf.score(X_test, y_test)
-    
+
     clf = get_classifier(params).fit(samples, labels)
 
     positive_testing = [ feature_vector_for_image(read_image(f), params) for f in Path(params.positive_testing_dir).iterdir() ]
