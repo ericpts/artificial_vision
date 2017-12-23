@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import pdb
 import sys
@@ -29,6 +29,7 @@ from scipy.ndimage import convolve
 from sklearn import svm
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
 
 from tqdm import tqdm
 
@@ -37,6 +38,11 @@ from util import *
 
 from params import Parameters
 
+def get_classifier(params: Parameters):
+    if params.classifier == 'SVM': 
+        return svm.SVC()
+    elif params.classifier == 'NN':
+        return KNeighborsClassifier(n_neighbors=1)
 
 def image_descriptor(image: ndarray, params: Parameters) -> ndarray:
     """ Given a image, generate its' feature descriptor. """
@@ -98,11 +104,10 @@ def main():
         print(len(X_train), len(X_test))
         print(len(y_train), len(y_test))
 
-        clf = svm.SVC(kernel='linear', C=1).fit(X_train, y_train)
+        clf = get_classifier(params).fit(X_train, y_train)
         return clf.score(X_test, y_test)
-
-    clf = svm.SVC().fit(samples, labels)
-
+    
+    clf = get_classifier(params).fit(samples, labels)
 
     positive_testing = [ feature_vector_for_image(read_image(f), params) for f in Path(params.positive_testing_dir).iterdir() ]
     negative_testing = [ feature_vector_for_image(read_image(f), params) for f in Path(params.negative_testing_dir).iterdir() ]

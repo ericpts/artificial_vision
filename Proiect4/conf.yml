@@ -1,10 +1,12 @@
 points_on_height: 8
 points_on_width: 8
 
-cells_per_block: 3
+cells_per_block: 1
 
 positive_training_dir: positive_training
 negative_training_dir: negative_training
 
 positive_testing_dir: positive_testing
 negative_testing_dir: negative_testing
+
+classifier: SVM
