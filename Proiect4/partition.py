@@ -34,7 +34,6 @@ def main():
       clipped_img = clip_square(img)
       resized_img = resize(clipped_img, (128, 128))
       
-      print(resized_img.shape)
       misc.imsave(dest / f.name, resized_img)
 
 
