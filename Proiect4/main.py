@@ -49,7 +49,7 @@ def image_descriptor(image: ndarray, params: Parameters) -> ndarray:
         to_grayscale(image),
         pixels_per_cell=(image_height, image_width),
         block_norm='L2-Hys',
-        cells_per_block=(3, 3),
+        cells_per_block=(params.cells_per_block, params.cells_per_block),
         visualise=False)
 
 

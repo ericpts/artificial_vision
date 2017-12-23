@@ -17,3 +17,5 @@ class Parameters(object):
 
         set_if_missing('positive_testing_dir', 'positive_testing')
         set_if_missing('negative_testing_dir', 'negative_testing')
+
+        set_if_missing('cells_per_block', 3)
