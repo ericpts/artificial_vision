@@ -5,7 +5,9 @@ import sys
 import shutil
 
 from pathlib import Path
-
+sys.path.append("../")
+from util import (read_image, misc, clip_square)
+from skimage.transform import resize
 
 def main():
 
@@ -26,8 +28,14 @@ def main():
         dest = negative
       else:
         sys.exit('Could not determine where to place {}'.format(f))
-
-      shutil.copy(f, dest)
+      
+      img = read_image(f)
+      # Resize image to 128x128
+      clipped_img = clip_square(img)
+      resized_img = resize(clipped_img, (128, 128))
+      
+      print(resized_img.shape)
+      misc.imsave(dest / f.name, resized_img)
 
 
 if __name__ == '__main__':

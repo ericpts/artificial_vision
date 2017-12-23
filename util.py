@@ -53,6 +53,11 @@ def neighbours_with_limits(n, m, i, j):
 
   return [(i - 1, j - 1), (i - 1, j), (i - 1, j + 1)]
 
+def clip_square(img):
+    w, h = img.shape[:2]
+    cx, cy = w // 2, h // 2
+    radius = min(w // 2, h // 2)
+    return img[cx - radius : cx + radius, cy - radius : cy + radius]
 
 def get_column_path_dynamicprogramming(energy):
   """ Returns the path, a dict from line to column. """
