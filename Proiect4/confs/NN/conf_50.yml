@@ -1,0 +1,12 @@
+bin_size: 8
+border: 40
+cell_size: 20
+cells_per_patch: 4
+classifier: NN
+clusters: 50
+negative_testing_dir: negative_testing
+negative_training_dir: negative_training
+points_on_height: 10
+points_on_width: 10
+positive_testing_dir: positive_testing
+positive_training_dir: positive_training
