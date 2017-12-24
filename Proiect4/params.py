@@ -23,6 +23,5 @@ class Parameters(object):
         set_if_missing('cell_size', 4)
         set_if_missing('bin_size', 8)
 
-
         set_if_missing('classifier', 'SVM')
         set_if_missing('clusters', 10)

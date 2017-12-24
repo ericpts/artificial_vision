@@ -49,6 +49,7 @@ def get_classifier(params: Parameters):
     elif params.classifier == 'NN':
         return KNeighborsClassifier(n_neighbors=1)
 
+
 def image_points(image: ndarray, params: Parameters) -> List:
     (h, w) = image.shape[0:2]
 
@@ -60,7 +61,7 @@ def image_points(image: ndarray, params: Parameters) -> List:
 
 def patch_around_point(image: ndarray, params: Parameters, point: Tuple) -> ndarray:
     h = (params.cells_per_patch * params.cell_size)
-    w = h # It's always a square.
+    w = h  # It's always a square.
 
     up = h // 2
     down = h - up
@@ -70,11 +71,13 @@ def patch_around_point(image: ndarray, params: Parameters, point: Tuple) -> ndar
 
     (x, y) = point
 
-    return image[x - up: x + down, y - left: y + right]
+    return image[x - up:x + down, y - left:y + right]
+
 
 def show(i):
     plt.imshow(i)
     plt.show()
+
 
 def gradient_for_patch(patch: ndarray) -> ndarray:
     horiz_kernel = np.reshape(np.asarray([1, 0, -1]), (1, 3))
@@ -90,12 +93,17 @@ def gradient_for_patch(patch: ndarray) -> ndarray:
 
 
 def descriptor_for_patch(patch: ndarray, params: Parameters) -> ndarray:
-    cells = [x for s in np.split(patch, params.cells_per_patch, axis=0) for x in np.split(s, params.cells_per_patch, axis=1)]
+    cells = [
+        x
+        for s in np.split(patch, params.cells_per_patch, axis=0)
+        for x in np.split(s, params.cells_per_patch, axis=1)
+    ]
 
     gradients = [gradient_for_patch(c) for c in cells]
 
     angles = np.angle(gradients)
-    buckets = np.floor(((angles + pi) / (2 * pi) - sys.float_info.epsilon) * params.bin_size).astype(int)
+    buckets = np.floor(
+        ((angles + pi) / (2 * pi) - sys.float_info.epsilon) * params.bin_size).astype(int)
     lengths = np.absolute(gradients)
 
     histogram = np.zeros(shape=(len(gradients), params.bin_size), dtype=float)
@@ -104,7 +112,7 @@ def descriptor_for_patch(patch: ndarray, params: Parameters) -> ndarray:
 
     norms = normalize(histogram, norm='l1')
 
-    return np.ravel(norms) # Return a single vector of features.
+    return np.ravel(norms)  # Return a single vector of features.
 
 
 def hogs_for_image(image: ndarray, params: Parameters) -> ndarray:
@@ -115,9 +123,11 @@ def hogs_for_image(image: ndarray, params: Parameters) -> ndarray:
 
     return descriptors
 
+
 def generate_vocabulary(hogs: List[ndarray], params: Parameters) -> KMeans:
     kmeans = KMeans(n_clusters=params.clusters).fit(hogs)
     return kmeans
+
 
 def features_for_hogs(hogs: List[ndarray], vocabulary: KMeans) -> ndarray:
     pred = vocabulary.predict(hogs)
@@ -136,10 +146,14 @@ def generate_data(vocabulary: KMeans, params: Parameters, kind: str) -> Tuple[nd
         positive_dir = params.positive_training_dir
         negative_dir = params.negative_training_dir
     else:
-        raise ValueError('Unknown data kind: {}. It should be one of testing or training.'.format(kind))
+        raise ValueError(
+            'Unknown data kind: {}. It should be one of testing or training.'.format(kind))
 
     def features_for_dir(path: str):
-        return [features_for_hogs(hogs_for_image(read_image(f), params), vocabulary) for f in Path(path).iterdir()]
+        return [
+            features_for_hogs(hogs_for_image(read_image(f), params), vocabulary)
+            for f in Path(path).iterdir()
+        ]
 
     positive_features = features_for_dir(positive_dir)
     negative_features = features_for_dir(negative_dir)
@@ -148,6 +162,7 @@ def generate_data(vocabulary: KMeans, params: Parameters, kind: str) -> Tuple[nd
     labels = [1] * len(positive_features) + [-1] * len(negative_features)
 
     return (features, labels)
+
 
 def main():
     parser = argparse.ArgumentParser(description='Car recogniser.')
@@ -166,7 +181,13 @@ def main():
             conf = yaml.load(f)
 
     params = Parameters(**conf)
-    hogs = [hog for f in itertools.chain(Path(params.positive_training_dir).iterdir(), Path(params.negative_training_dir).iterdir()) for hog in hogs_for_image(read_image(f), params)]
+    hogs = [
+        hog
+        for f in itertools.chain(
+            Path(params.positive_training_dir).iterdir(),
+            Path(params.negative_training_dir).iterdir())
+        for hog in hogs_for_image(read_image(f), params)
+    ]
     vocabulary = generate_vocabulary(hogs, params)
 
     def cross_validate(samples, labels):
