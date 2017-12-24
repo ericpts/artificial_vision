@@ -1,7 +1,10 @@
-points_on_height: 32
-points_on_width: 32
+points_on_height: 10
+points_on_width: 10
+border: 40
 
-cells_per_block: 1
+cells_per_patch: 4
+cell_size: 20
+bin_size: 8
 
 positive_training_dir: positive_training
 negative_training_dir: negative_training
@@ -10,3 +13,4 @@ positive_testing_dir: positive_testing
 negative_testing_dir: negative_testing
 
 classifier: SVM
+clusters: 10
