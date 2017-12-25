@@ -19,11 +19,12 @@ def main():
 
     for csf in classifiers:
         points = list(map(lambda r: (r[1], r[2]), filter(lambda r: r[0] == csf, results)))
-        (ncluster_vector, score_vector) = list(zip(*points))
+        (ncluster_vector, score_vector) = list(zip(*sorted(points)))
 
         print(ncluster_vector, score_vector)
-        plt.figure()
-        plt.plot(ncluster_vector, score_vector, 'bo')
+        plt.xscale('log')
+        plt.plot(ncluster_vector, score_vector, 'b-')
+        plt.plot(ncluster_vector, score_vector, 'go')
         plt.xlabel('Number of clusters')
         plt.ylabel('Accuracy')
         plt.savefig('csf_{}.svg'.format(csf))

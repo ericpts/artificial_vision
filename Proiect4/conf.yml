@@ -12,5 +12,5 @@ negative_training_dir: negative_training
 positive_testing_dir: positive_testing
 negative_testing_dir: negative_testing
 
-classifier: NN
+classifier: SVM
 clusters: 100

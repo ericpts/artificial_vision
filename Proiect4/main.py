@@ -131,10 +131,8 @@ def generate_vocabulary(hogs: List[ndarray], params: Parameters) -> KMeans:
 
 def features_for_hogs(hogs: List[ndarray], vocabulary: KMeans) -> ndarray:
     pred = vocabulary.predict(hogs)
-    (indexes, features) = np.unique(pred, return_counts=True)
-
     ret = np.zeros(shape=(vocabulary.n_clusters), dtype=int)
-    ret[indexes] += features
+    ret[pred] += 1
     return ret
 
 
