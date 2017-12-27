@@ -1,5 +1,4 @@
 from place_utils import *
-import pdb
 
 
 def place_overlap(params: Parameters, sample_img: ndarray) -> ndarray:

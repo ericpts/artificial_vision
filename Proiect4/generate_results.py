@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import pdb
 import subprocess
 
 import concurrent.futures

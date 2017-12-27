@@ -1,11 +1,10 @@
 #!/usr/bin/python3
 
-from os.path import basename, exists
+from os.path import exists
 import sys
 import shutil
 import argparse
 import subprocess
-import tempfile
 import random
 import urllib
 import multiprocessing as mp

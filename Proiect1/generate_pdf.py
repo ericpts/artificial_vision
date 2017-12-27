@@ -1,12 +1,10 @@
 #!/usr/bin/python3
 
-from os.path import basename
 import sys
 import argparse
 import subprocess
 import tempfile
 import random
-import multiprocessing as mp
 from pathlib import Path
 from reportlab.pdfgen import canvas
 

@@ -1,6 +1,5 @@
 from place_utils import *
 from place_overlap_and_edge_cut import *
-import pdb
 
 
 def transfer_texture(

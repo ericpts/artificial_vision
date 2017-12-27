@@ -2,7 +2,6 @@
 
 import argparse
 import numpy
-import time
 from scipy.spatial.distance import euclidean
 from scipy import ndarray
 from scipy import misc
@@ -11,7 +10,6 @@ import math
 import sys
 import matplotlib.pyplot as plt
 import os
-import pdb
 import random
 
 sys.path.append('../')

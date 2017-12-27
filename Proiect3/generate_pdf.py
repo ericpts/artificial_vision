@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-from os.path import basename, exists
 import sys
 import glob
 import functools
@@ -8,10 +7,6 @@ import shutil
 import argparse
 import concurrent.futures
 import subprocess
-import tempfile
-import random
-import urllib
-import multiprocessing as mp
 from pathlib import Path
 from reportlab.pdfgen import canvas
 

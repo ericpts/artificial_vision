@@ -1,10 +1,7 @@
 #!/usr/bin/python3
 
-import pdb
 import sys
-import time
 import argparse
-import random
 import matplotlib.pyplot as plt
 
 import skimage.color

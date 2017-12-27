@@ -1,5 +1,4 @@
 import numpy
-import time
 import skimage.io
 from scipy.spatial.distance import euclidean
 from scipy.spatial import KDTree
@@ -7,12 +6,8 @@ from scipy import ndarray
 from scipy import misc
 from pathlib import Path
 from typing import List
-import concurrent.futures
 import math
-import sys
 import matplotlib.pyplot as plt
-import os
-import pdb
 import random
 import numpy as np
 import math

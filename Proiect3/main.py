@@ -1,12 +1,8 @@
 #!/usr/bin/python3
 
-import pdb
 import sys
-import time
 import argparse
-import random
 import itertools
-import functools
 import matplotlib.pyplot as plt
 
 import skimage.color
@@ -14,7 +10,6 @@ import skimage.filters
 from skimage.viewer import ImageViewer
 from skimage.viewer.canvastools import RectangleTool
 
-from typing import List
 
 import numpy as np
 
