@@ -24,6 +24,7 @@ import scipy.spatial.distance
 from scipy import ndarray
 from scipy.ndimage import convolve
 
+from sklearn.manifold import TSNE
 from sklearn import svm
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
@@ -42,10 +43,10 @@ def show(image: ndarray):
 
 def features_for_image(image: ndarray, params: Parameters, feature_vector: bool = True) -> ndarray:
     fd = hog(to_grayscale(image), block_norm='L2-Hys', orientations=params.bin_size, pixels_per_cell=(params.cell_size, params.cell_size), cells_per_block=(params.cells_per_block, params.cells_per_block), feature_vector=feature_vector)
-    return fd
+    return fd + 0.00001
 
 def partition_negative_image(image: ndarray, params: Parameters) -> List[ndarray]:
-    n, m = image.shape[0:2]
+    (n, m) = image.shape[0:2]
 
     k = params.window_size
     def random_patch() -> ndarray:
@@ -69,7 +70,10 @@ def detections_for_image(image: ndarray, params: Parameters, classifier) -> List
         for i in range(n - k):
             for j in range(m - k):
                 window = np.ravel(features[i : i + k, j : j + k])
-                r = classifier.predict([window])
+                r = classifier.decision_function([window])
+                print(classifier.predict([window]))
+                print(r)
+
 
 def main():
     parser = argparse.ArgumentParser(description='Car recogniser.')
@@ -94,8 +98,7 @@ def main():
 
     features = np.concatenate((positive_features, negative_features))
     labels = np.asarray([1] * len(positive_features) + [-1] * len(negative_features))
-    csf = svm.SVC(probability=True).fit(features, labels)
-
+    csf = svm.SVC().fit(features, labels)
 
     def train_for_hard_negatives():
         def false_positives() -> ndarray:
