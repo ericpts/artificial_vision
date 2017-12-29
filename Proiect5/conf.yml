@@ -3,7 +3,7 @@ window_size: 36
 cells_per_block: 2
 cell_size: 6
 bin_size: 9
-samples_per_negative_image: 10
+samples_per_negative_image: 50
 
 positive_training_dir: data/exemplePozitive
 negative_training_dir: data/exempleNegative

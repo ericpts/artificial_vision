@@ -31,6 +31,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import normalize
 from sklearn.cluster import KMeans
+from sklearn.feature_extraction.image import extract_patches_2d
 
 sys.path.append('../')
 from util import *
@@ -46,16 +47,11 @@ def features_for_image(image: ndarray, params: Parameters, feature_vector: bool 
     return fd + 0.00001
 
 def partition_negative_image(image: ndarray, params: Parameters) -> List[ndarray]:
+    k = params.window_size
     (n, m) = image.shape[0:2]
 
-    k = params.window_size
-    def random_patch() -> ndarray:
-        x0 = random.randint(0, n - k - 1)
-        y0 = random.randint(0, m - k - 1)
-        ret = image[x0 : x0 + k, y0 : y0 + k]
-        return ret
-
-    return [random_patch() for _ in range(params.samples_per_negative_image)]
+    npatches = min(params.samples_per_negative_image, (n - k) * (m - k))
+    return extract_patches_2d(image, (k, k), max_patches=npatches)
 
 def detections_for_image(image: ndarray, params: Parameters, classifier) -> List:
 
@@ -71,8 +67,8 @@ def detections_for_image(image: ndarray, params: Parameters, classifier) -> List
             for j in range(m - k):
                 window = np.ravel(features[i : i + k, j : j + k])
                 r = classifier.decision_function([window])
-                print(classifier.predict([window]))
-                print(r)
+                # print(classifier.predict([window]))
+                # print(r)
 
 
 def main():
@@ -96,8 +92,11 @@ def main():
     positive_features = np.asarray([ features_for_image(read_image(f), params) for f in Path(params.positive_training_dir).iterdir() ])
     negative_features = np.asarray([ features_for_image(img, params) for f in Path(params.negative_training_dir).iterdir() for img in partition_negative_image(read_image(f), params) ])
 
+
     features = np.concatenate((positive_features, negative_features))
     labels = np.asarray([1] * len(positive_features) + [-1] * len(negative_features))
+
+    print('Training the classifier with {} positives samples and {} negative samples'.format(len(positive_features), len(negative_features)))
     csf = svm.SVC().fit(features, labels)
 
     def train_for_hard_negatives():
@@ -118,6 +117,8 @@ def main():
             fp = false_positives()
 
             print('.', end='', flush=True)
+
+    print(csf.score(features, labels))
 
     for f in Path(params.test_dir).iterdir():
         detections_for_image(read_image(f), params, csf)
