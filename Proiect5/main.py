@@ -43,15 +43,18 @@ def show(image: ndarray):
     plt.show()
 
 def features_for_image(image: ndarray, params: Parameters, feature_vector: bool = True) -> ndarray:
-    fd = hog(to_grayscale(image), block_norm='L2-Hys', orientations=params.bin_size, pixels_per_cell=(params.cell_size, params.cell_size), cells_per_block=(params.cells_per_block, params.cells_per_block), feature_vector=feature_vector)
-    return fd + 0.00001
+    fd = hog(to_grayscale(image), block_norm='L1', orientations=params.bin_size, pixels_per_cell=(params.cell_size, params.cell_size), cells_per_block=(params.cells_per_block, params.cells_per_block), feature_vector=feature_vector)
+# Hack to undo the normalization.
+    return fd
 
 def partition_negative_image(image: ndarray, params: Parameters) -> List[ndarray]:
     k = params.window_size
     (n, m) = image.shape[0:2]
 
     npatches = min(params.samples_per_negative_image, (n - k) * (m - k))
-    return extract_patches_2d(image, (k, k), max_patches=npatches)
+    patches = extract_patches_2d(image, (k, k), max_patches=npatches)
+
+    return patches
 
 def detections_for_image(image: ndarray, params: Parameters, classifier) -> List:
 
@@ -97,7 +100,7 @@ def main():
     labels = np.asarray([1] * len(positive_features) + [-1] * len(negative_features))
 
     print('Training the classifier with {} positives samples and {} negative samples'.format(len(positive_features), len(negative_features)))
-    csf = svm.SVC().fit(features, labels)
+    csf = svm.LinearSVC(verbose=True).fit(features, labels)
 
     def train_for_hard_negatives():
         def false_positives() -> ndarray:
@@ -118,10 +121,25 @@ def main():
 
             print('.', end='', flush=True)
 
-    print(csf.score(features, labels))
+    def cross_validate(samples, labels):
+        X_train, X_test, y_train, y_test = train_test_split(
+            samples, labels, test_size=0.4, random_state=0)
 
-    for f in Path(params.test_dir).iterdir():
-        detections_for_image(read_image(f), params, csf)
+        clf = svm.LinearSVC().fit(X_train, y_train)
+        return clf.score(X_test, y_test)
+
+
+    zero_outliers = [np.random.rand(*positive_features[0].shape) * 1e-4 for _ in range(1000)]
+
+    print('sum of coef: ', np.sum(csf.coef_))
+    print('intercept: ', csf.intercept_)
+
+    print('zero outliers score: ', csf.score(zero_outliers, [-1] * len(zero_outliers)))
+
+    print('cross validation performance: ', (cross_validate(features, labels)))
+
+    # for f in Path(params.test_dir).iterdir():
+    #     detections_for_image(read_image(f), params, csf)
 
 
 
