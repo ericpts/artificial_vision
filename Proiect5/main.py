@@ -62,14 +62,28 @@ def detections_for_image(image: ndarray, params: Parameters, classifier) -> List
 
     k = params.window_size // params.cell_size - params.cells_per_block + 1
     for scale in map(float, params.test_image_scales):
-        features = features_for_image(misc.imresize(image, scale), params, feature_vector=False)
+        scaled_img = misc.imresize(image, scale)
+        (h, w) = scaled_img.shape[0:2]
+
+        features = features_for_image(scaled_img, params, feature_vector=False)
 
         (n, m) = features.shape[0:2]
 
         for i in range(n - k):
             for j in range(m - k):
                 window = np.ravel(features[i : i + k, j : j + k])
+
                 r = classifier.decision_function([window])
+                face = classifier.predict([window])
+
+                x = int(i / n * h)
+                y = int(j / m * w)
+
+                if face[0] == 1 and r[0] >= 1.0:
+                    print(r)
+                    show(scaled_img[x : x + params.window_size, y : y + params.window_size])
+
+
                 # print(classifier.predict([window]))
                 # print(r)
 
@@ -94,7 +108,6 @@ def main():
 
     positive_features = np.asarray([ features_for_image(read_image(f), params) for f in Path(params.positive_training_dir).iterdir() ])
     negative_features = np.asarray([ features_for_image(img, params) for f in Path(params.negative_training_dir).iterdir() for img in partition_negative_image(read_image(f), params) ])
-
 
     features = np.concatenate((positive_features, negative_features))
     labels = np.asarray([1] * len(positive_features) + [-1] * len(negative_features))
@@ -129,17 +142,10 @@ def main():
         return clf.score(X_test, y_test)
 
 
-    zero_outliers = [np.random.rand(*positive_features[0].shape) * 1e-4 for _ in range(1000)]
-
-    print('sum of coef: ', np.sum(csf.coef_))
-    print('intercept: ', csf.intercept_)
-
-    print('zero outliers score: ', csf.score(zero_outliers, [-1] * len(zero_outliers)))
-
     print('cross validation performance: ', (cross_validate(features, labels)))
 
-    # for f in Path(params.test_dir).iterdir():
-    #     detections_for_image(read_image(f), params, csf)
+    for f in Path(params.test_dir).iterdir():
+        detections_for_image(read_image(f), params, csf)
 
 
 
